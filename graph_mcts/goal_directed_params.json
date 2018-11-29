@@ -1,0 +1,15 @@
+{
+    "generations": 1000,
+    "init_smiles": "CC",
+    "max_atoms": 60,
+    "max_children": 25,
+    "n_jobs": -1,
+    "num_sims": 2,
+    "output_dir": "/Users/marcofiscato/benevolent/guacamol_baselines/graph_mcts",
+    "patience": 5,
+    "pickle_directory": "graph_mcts/",
+    "population_size": 100,
+    "random_start": false,
+    "seed": 0,
+    "smiles_file": null
+}
