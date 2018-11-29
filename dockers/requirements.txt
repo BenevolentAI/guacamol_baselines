@@ -1,3 +1,5 @@
+git+https://github.com/mkusner/grammarVAE.git#egg=theano&subdirectory=Theano-master
+git+https://github.com/fiskio/icml18-jtnn.git@master#egg=jtnn
 git+https://github.com/bioinf-jku/FCD.git@master#egg=fcd
 guacamol==0.3.1
 matplotlib==2.2.3

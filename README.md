@@ -133,3 +133,19 @@ To execute the goal-directed generation benchmarks:
 python -m smiles_lstm_ppo.goal_directed_generation
 ```
 
+## Junction Tree Variational Autoencoder
+Junction Tree Variational Autoencoder for Molecular Graph Generation as 
+described in: https://arxiv.org/abs/1802.04364  
+
+Implementation adapted from: https://github.com/wengong-jin/icml18-jtnn
+
+To execute the goal-directed generation benchmarks: 
+```bash
+python jtnn.goal_directed_generation
+```
+
+To train a model from scratch and benchmark it:
+```bash
+python jtnn.distribution_learning
+```
+
