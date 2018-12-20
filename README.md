@@ -3,7 +3,7 @@
 A series of baseline model implementations for the [`guacamol`](https://github.com/BenevolentAI/guacamol) benchmark 
 for generative chemistry.  
 A more in depth explanation of the benchmarks and scores for these baselines is 
-can be found in: TODO
+can be found in our [paper](https://arxiv.org/abs/1811.09621).
 
 ## Dependencies
 To install all dependencies:
