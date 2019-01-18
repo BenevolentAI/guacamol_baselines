@@ -5,7 +5,7 @@ from torch.distributions import Distribution, Categorical
 from torch.nn import functional as F
 
 from smiles_lstm_ppo.rnn_model import SmilesRnnActorCritic
-from smiles_lstm.rnn_utils import rnn_start_token_vector
+from smiles_lstm_hc.rnn_utils import rnn_start_token_vector
 
 
 class ActionReplay(object):

@@ -4,7 +4,7 @@ import logging
 
 from smiles_lstm_ppo.ppo_trainer import PPOTrainer, OptResult
 from smiles_lstm_ppo.rnn_model import SmilesRnnActorCritic
-from smiles_lstm.rnn_sampler import SmilesRnnSampler
+from smiles_lstm_hc.rnn_sampler import SmilesRnnSampler
 from guacamol.scoring_function import ScoringFunction
 
 logger = logging.getLogger(__name__)
