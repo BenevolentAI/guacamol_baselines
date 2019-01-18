@@ -17,4 +17,4 @@ class RandomSmilesSampler(DistributionMatchingGenerator):
         self.molecules = molecules
 
     def generate(self, number_samples: int) -> List[str]:
-        return np.random.choice(self.molecules, size=number_samples)
+        return list(np.random.choice(self.molecules, size=number_samples))

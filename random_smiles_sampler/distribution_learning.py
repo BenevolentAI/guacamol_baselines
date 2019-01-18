@@ -19,7 +19,7 @@ if __name__ == '__main__':
         args.output_dir = os.path.dirname(os.path.realpath(__file__))
 
     with open(args.dist_file, 'r') as smiles_file:
-        smiles_list = smiles_file.readlines()
+        smiles_list = [line.strip() for line in smiles_file.readlines()]
 
     generator = RandomSmilesSampler(molecules=smiles_list)
 
