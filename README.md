@@ -102,7 +102,7 @@ This implementation optimizes using *hill climbing* algorithm.
 
 Implementation by [BenevolentAI](https://benevolent.ai/)
 
-A pre-trained model is provided in: [smiles_lstm/pretrained_model](TODO real URL)  
+A pre-trained model is provided in: [smiles_lstm/pretrained_model](https://github.com/BenevolentAI/guacamol_baselines/tree/master/smiles_lstm_hc/pretrained_model)  
 
 To execute the goal-directed generation benchmarks: 
 ```bash
@@ -126,7 +126,7 @@ This implementation optimizes using [*proximal policy optimization*](https://arx
 
 Implementation by [BenevolentAI](https://benevolent.ai/)
 
-A pre-trained model is provided in: [smiles_lstm/pretrained_model](TODO real URL)  
+A pre-trained model is provided in: [smiles_lstm/pretrained_model](https://github.com/BenevolentAI/guacamol_baselines/tree/master/smiles_lstm_ppo/pretrained_model)  
 
 To execute the goal-directed generation benchmarks: 
 ```bash
