@@ -14,6 +14,8 @@ if __name__ == '__main__':
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--smiles_file', default='data/guacamol_v1_all.smiles')
     parser.add_argument('--output_dir', default=None, help='Output directory')
+    parser.add_argument('--n_jobs', type=int, default=-1)
+    parser.add_argument('--suite', default='v1')
 
     args = parser.parse_args()
 
@@ -22,8 +24,8 @@ if __name__ == '__main__':
 
     smiles_reader = ChemblFileReader(args.smiles_file)
 
-    optimizer = BestFromChemblOptimizer(smiles_reader=smiles_reader)
+    optimizer = BestFromChemblOptimizer(smiles_reader=smiles_reader, n_jobs=args.n_jobs)
 
     json_file_path = os.path.join(args.output_dir, 'goal_directed_results.json')
 
-    assess_goal_directed_generation(optimizer, json_output_file=json_file_path)
+    assess_goal_directed_generation(optimizer, json_output_file=json_file_path, benchmark_version=args.suite)

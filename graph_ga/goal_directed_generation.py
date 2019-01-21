@@ -185,6 +185,7 @@ def main():
     parser.add_argument('--random_start', action='store_true')
     parser.add_argument('--output_dir', type=str, default=None)
     parser.add_argument('--patience', type=int, default=5)
+    parser.add_argument('--suite', default='v1')
 
     args = parser.parse_args()
 
@@ -209,7 +210,7 @@ def main():
                                 patience=args.patience)
 
     json_file_path = os.path.join(args.output_dir, 'goal_directed_results.json')
-    assess_goal_directed_generation(optimiser, json_output_file=json_file_path)
+    assess_goal_directed_generation(optimiser, json_output_file=json_file_path, benchmark_version=args.suite)
 
 
 if __name__ == "__main__":
