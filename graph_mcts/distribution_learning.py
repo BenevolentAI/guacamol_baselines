@@ -119,6 +119,7 @@ def main():
     parser.add_argument('--init_smiles', type=str, default='CC')
     parser.add_argument('--random_start', action='store_true')
     parser.add_argument('--output_dir', type=str, default=None)
+    parser.add_argument('--suite', default='v1')
     args = parser.parse_args()
 
     if args.output_dir is None:
@@ -146,7 +147,8 @@ def main():
                               population_size=args.population_size)
 
     json_file_path = os.path.join(args.output_dir, 'distribution_learning_results.json')
-    assess_distribution_learning(sampler, json_output_file=json_file_path, chembl_training_file=args.smiles_file)
+    assess_distribution_learning(sampler, json_output_file=json_file_path, chembl_training_file=args.smiles_file,
+                                 benchmark_version=args.suite)
 
 
 if __name__ == "__main__":

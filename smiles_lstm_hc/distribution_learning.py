@@ -21,6 +21,7 @@ if __name__ == '__main__':
     parser.add_argument('--model_path', default=None, help='Full path to SMILES RNN model')
     parser.add_argument('--output_dir', default=None, help='Output directory')
     parser.add_argument('--dist_file', default='data/guacamol_v1_all.smiles', help='Distribution file')
+    parser.add_argument('--suite', default='v1')
 
     args = parser.parse_args()
 
@@ -43,4 +44,5 @@ if __name__ == '__main__':
     json_file_path = os.path.join(args.output_dir, 'distribution_learning_results.json')
     assess_distribution_learning(generator,
                                  chembl_training_file=args.dist_file,
-                                 json_output_file=json_file_path)
+                                 json_output_file=json_file_path,
+                                 benchmark_version=args.suite)

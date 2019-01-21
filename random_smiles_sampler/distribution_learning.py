@@ -13,6 +13,7 @@ if __name__ == '__main__':
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--dist_file', default='data/guacamol_v1_all.smiles')
     parser.add_argument('--output_dir', default=None, help='Output directory')
+    parser.add_argument('--suite', default='v1')
     args = parser.parse_args()
 
     if args.output_dir is None:
@@ -27,4 +28,5 @@ if __name__ == '__main__':
 
     assess_distribution_learning(generator,
                                  chembl_training_file=args.dist_file,
-                                 json_output_file=json_file_path)
+                                 json_output_file=json_file_path,
+                                 benchmark_version=args.suite)
