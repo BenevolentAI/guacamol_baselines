@@ -292,13 +292,12 @@ class GB_MCTS_Generator(GoalDirectedGenerator):
 
     def __init__(self, pickle_directory: str, population_size,
                  generations, num_sims, max_children, init_smiles, max_atoms,
-                 n_jobs=-1, random_start=False, patience=5):
+                 n_jobs=-1, patience=5):
         self.logger = logging.getLogger(__name__)
         self.pool = joblib.Parallel(n_jobs=n_jobs)
         self.pickle_directory = pickle_directory
         self.population_size = population_size
         self.generations = generations
-        self.random_start = random_start
         self.patience = patience
         self.num_sims = num_sims
         self.max_children = max_children
@@ -400,9 +399,9 @@ def main():
     parser.add_argument('--max_children', type=int, default=25)
     parser.add_argument('--max_atoms', type=int, default=60)
     parser.add_argument('--init_smiles', type=str, default='CC')
-    parser.add_argument('--random_start', type=bool, default=False)
     parser.add_argument('--output_dir', type=str, default=None)
     parser.add_argument('--patience', type=int, default=5)
+    parser.add_argument('--suite', default='v1')
     args = parser.parse_args()
 
     if args.output_dir is None:
@@ -421,7 +420,6 @@ def main():
 
     optimiser = GB_MCTS_Generator(pickle_directory=args.pickle_directory,
                                   n_jobs=args.n_jobs,
-                                  random_start=args.random_start,
                                   num_sims=args.num_sims,
                                   max_children=args.max_children,
                                   init_smiles=args.init_smiles,
@@ -431,7 +429,7 @@ def main():
                                   population_size=args.population_size)
 
     json_file_path = os.path.join(args.output_dir, 'goal_directed_results.json')
-    assess_goal_directed_generation(optimiser, json_output_file=json_file_path)
+    assess_goal_directed_generation(optimiser, json_output_file=json_file_path, benchmark_version=args.suite)
 
 
 if __name__ == "__main__":
