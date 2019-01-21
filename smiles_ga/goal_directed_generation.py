@@ -136,6 +136,9 @@ class ChemGEGenerator(GoalDirectedGenerator):
             else:
                 starting_population = self.top_k(all_smiles, scoring_function, init_size)
 
+        # The smiles GA cannot deal with '%' in SMILES strings (used for two-digit ring numbers).
+        starting_population = [smiles for smiles in starting_population if '%' not in smiles]
+
         # calculate initial genes
         initial_genes = [cfg_to_gene(cfg_util.encode(s), max_len=self.gene_size)
                          for s in starting_population]
