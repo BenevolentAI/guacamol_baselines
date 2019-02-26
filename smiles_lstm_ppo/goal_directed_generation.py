@@ -27,7 +27,7 @@ def main():
     parser.add_argument('--num_epochs', type=int, default=20)
     parser.add_argument('--model_path', default=None)
     parser.add_argument('--seed', type=int, default=42)
-    parser.add_argument('--benchmark_version', type=str, default='v1')
+    parser.add_argument('--suite', default='v2')
 
     args = parser.parse_args()
 
@@ -57,7 +57,7 @@ def main():
 
     json_file_path = os.path.join(args.output_dir, 'goal_directed_results.json')
     assess_goal_directed_generation(optimiser, json_output_file=json_file_path,
-                                    benchmark_version=args.benchmark_version)
+                                    benchmark_version=args.suite)
 
 
 if __name__ == "__main__":

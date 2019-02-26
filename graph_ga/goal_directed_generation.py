@@ -185,7 +185,7 @@ def main():
     parser.add_argument('--random_start', action='store_true')
     parser.add_argument('--output_dir', type=str, default=None)
     parser.add_argument('--patience', type=int, default=5)
-    parser.add_argument('--suite', default='v1')
+    parser.add_argument('--suite', default='v2')
 
     args = parser.parse_args()
 

@@ -21,7 +21,7 @@ if __name__ == '__main__':
     parser.add_argument('--model_path', default=None, help='Full path to SMILES RNN model')
     parser.add_argument('--output_dir', default=None, help='Output directory')
     parser.add_argument('--dist_file', default='data/guacamol_v1_all.smiles', help='Distribution file')
-    parser.add_argument('--suite', default='v1')
+    parser.add_argument('--suite', default='v2')
 
     args = parser.parse_args()
 

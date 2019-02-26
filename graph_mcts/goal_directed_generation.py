@@ -401,7 +401,7 @@ def main():
     parser.add_argument('--init_smiles', type=str, default='CC')
     parser.add_argument('--output_dir', type=str, default=None)
     parser.add_argument('--patience', type=int, default=5)
-    parser.add_argument('--suite', default='v1')
+    parser.add_argument('--suite', default='v2')
     args = parser.parse_args()
 
     if args.output_dir is None:

@@ -28,7 +28,7 @@ if __name__ == '__main__':
     parser.add_argument('--smiles_file', default='data/guacamol_v1_all.smiles')
     parser.add_argument('--random_start', action='store_true')
     parser.add_argument('--n_jobs', type=int, default=-1)
-    parser.add_argument('--suite', default='v1')
+    parser.add_argument('--suite', default='v2')
     args = parser.parse_args()
 
     if args.output_dir is None:

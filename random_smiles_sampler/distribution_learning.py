@@ -13,7 +13,7 @@ if __name__ == '__main__':
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--dist_file', default='data/guacamol_v1_all.smiles')
     parser.add_argument('--output_dir', default=None, help='Output directory')
-    parser.add_argument('--suite', default='v1')
+    parser.add_argument('--suite', default='v2')
     args = parser.parse_args()
 
     if args.output_dir is None:
