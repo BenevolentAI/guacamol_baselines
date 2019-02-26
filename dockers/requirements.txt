@@ -1,6 +1,5 @@
-git+https://github.com/bioinf-jku/FCD.git@master#egg=fcd
-guacamol==0.3.1
-matplotlib==2.2.3
+guacamol==0.5.1
+matplotlib==3.0.2
 torch==0.4.1
 joblib==0.12.5
 numpy==1.15.2
@@ -8,3 +7,4 @@ tqdm==4.26.0
 cython==0.29
 nltk==3.3.0
 flake8==3.5.0
+git+https://github.com/molecularsets/moses.git@master#egg=moses
