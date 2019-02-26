@@ -133,7 +133,7 @@ def main():
     setup_default_logger()
 
     # save command line args
-    with open(os.path.join(args.output_dir, 'goal_directed_params.json'), 'w') as jf:
+    with open(os.path.join(args.output_dir, 'distribution_learning_params.json'), 'w') as jf:
         json.dump(vars(args), jf, sort_keys=True, indent=4)
 
     sampler = GB_MCTS_Sampler(pickle_directory=args.pickle_directory,
