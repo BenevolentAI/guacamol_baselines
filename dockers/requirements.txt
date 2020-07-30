@@ -1,4 +1,4 @@
-guacamol==0.5.1
+guacamol==0.5.2
 matplotlib==3.0.2
 torch==0.4.1
 joblib==0.12.5
