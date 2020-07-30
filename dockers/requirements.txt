@@ -1,6 +1,6 @@
 guacamol==0.5.2
 matplotlib==3.0.2
-torch==0.4.1
+torch>=1.0.0
 joblib==0.12.5
 numpy==1.15.2
 tqdm==4.26.0
