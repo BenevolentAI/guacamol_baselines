@@ -1,10 +1,14 @@
-guacamol==0.5.3
-matplotlib==3.0.2
-torch>=1.0.0
+guacamol==0.5.4
+
+# fixing dependencies to allow guacamol baselines, moses baselines and the guacamol lib to install together
+torch==1.10.0
 joblib==0.12.5
-numpy==1.15.2
+numpy==1.21.4
 tqdm==4.26.0
 cython==0.29
 nltk==3.4.5
 flake8==3.5.0
+tensorflow==1.13.2
+keras==2.3.1
+h5py==2.10.0
 git+https://github.com/molecularsets/moses.git@96c77d52c688dcac8e2962d78965175e7824c48c#egg=moses

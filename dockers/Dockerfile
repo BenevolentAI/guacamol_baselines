@@ -26,7 +26,7 @@ RUN conda install -y -q -c rdkit rdkit=2018.09.1.0
 # python deps
 COPY requirements.txt /tmp
 RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r /tmp/requirements.txt
+#RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
 # Add the source code
 RUN mkdir -p /app
