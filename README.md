@@ -141,4 +141,4 @@ python -m smiles_lstm_ppo.goal_directed_generation
 
 ## Change log
 - 15 Oct 2020: upgrade guacamol version to 0.5.3
-- 10 Nov 2021: upgrade guacamol version to 0.5.4. Migrate RDKit install conda->pip. Fix dependencies.
+- 10 Nov 2021: upgrade guacamol version to 0.5.4. Migrate RDKit install conda->pip. Update dependencies.
