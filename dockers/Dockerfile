@@ -1,4 +1,4 @@
-FROM nvidia/cuda:9.0-cudnn7-runtime-ubuntu16.04
+FROM gitlab.beno.ai:4567/eng/external-images/nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
@@ -20,13 +20,10 @@ RUN curl -LO --silent https://repo.continuum.io/miniconda/Miniconda3-4.5.11-Linu
 
 ENV PATH=/miniconda/bin:${PATH}
 
-# RDKit
-RUN conda install -y -q -c rdkit rdkit=2018.09.1.0
-
 # python deps
 COPY requirements.txt /tmp
 RUN pip install --upgrade pip
-#RUN pip install --no-cache-dir -r /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
 # Add the source code
 RUN mkdir -p /app
