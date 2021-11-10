@@ -1,4 +1,4 @@
-FROM gitlab.beno.ai:4567/eng/external-images/nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04
+FROM nvidia/cuda:9.0-cudnn7-runtime-ubuntu16.04
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
