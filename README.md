@@ -8,8 +8,14 @@ can be found in our [paper](https://arxiv.org/abs/1811.09621).
 ## Dependencies
 To install all dependencies:
 ```bash
-conda install rdkit -c rdkit
 pip install -r requirements.txt
+```
+
+We also provide a `Dockerfile` which containerizes baselines from this repo. 
+This may be a useful start point when implementing your own generative models.
+
+```bash
+docker build -f dockers/Dockerfile . -t guacamol-baselines
 ```
 
 
@@ -133,3 +139,6 @@ To execute the goal-directed generation benchmarks:
 python -m smiles_lstm_ppo.goal_directed_generation
 ```
 
+## Change log
+- 15 Oct 2020: upgrade guacamol version to 0.5.3
+- 10 Nov 2021: upgrade guacamol version to 0.5.4. Migrate RDKit install conda->pip. Update dependencies.

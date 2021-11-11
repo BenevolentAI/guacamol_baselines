@@ -20,9 +20,6 @@ RUN curl -LO --silent https://repo.continuum.io/miniconda/Miniconda3-4.5.11-Linu
 
 ENV PATH=/miniconda/bin:${PATH}
 
-# RDKit
-RUN conda install -y -q -c rdkit rdkit=2018.09.1.0
-
 # python deps
 COPY requirements.txt /tmp
 RUN pip install --upgrade pip
