@@ -15,6 +15,8 @@ random.seed(1337)
 
 def test_fraggt_generator_e2e(tmpdir):
     # Given
+    np.random.seed(1337)
+    random.seed(1337)
     n_generations = 3
     number_of_requested_molecules = 10
     optimizer = FragGTGenerator(smi_file=SAMPLE_SMILES_FILE,
@@ -48,6 +50,8 @@ def test_fraggt_generator_e2e(tmpdir):
 
 def test_fraggt_generator_custom_initial_population(tmpdir):
     # Given
+    np.random.seed(1337)
+    random.seed(1337)
     starting_population = ["c1ccccc1"]
     population_size = 10
     number_of_requested_molecules = 3
@@ -101,6 +105,8 @@ def test_fraggt_generator_custom_initial_population(tmpdir):
 
 def test_fraggt_generator_mapelites():
     # Given
+    np.random.seed(1337)
+    random.seed(1337)
     n_generations = 3
     number_of_requested_molecules = 10
     optimizer = FragGTGenerator(smi_file=SAMPLE_SMILES_FILE,

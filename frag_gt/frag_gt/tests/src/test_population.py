@@ -75,7 +75,7 @@ def test_tournament_selection():
     fittest = MolecularPopulationGenerator.tournament_selection(current_pool, k=5)
 
     # Then
-    assert int(fittest.score) == 77
+    assert int(fittest.score) == 92
 
 
 def test_population_generate_tournament_selection():
