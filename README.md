@@ -139,6 +139,22 @@ To execute the goal-directed generation benchmarks:
 python -m smiles_lstm_ppo.goal_directed_generation
 ```
 
+## Frag GT
+
+Fragment-based evolutionary algorithm for generating molecules. 
+
+See frag-gt readme for install instructions and description.
+
+Implementation by [BenevolentAI](https://benevolent.ai/)
+
+Pre-computed fragment libraries are available from Zenodo (https://zenodo.org/record/6038464)
+
+To execute the goal-directed generation benchmarks:
+```bash
+python frag_gt/goal_directed_generation.py --fragstore_path frag_gt/data/fragment_libraries/guacamol_v1_all_fragstore_brics.pkl --smiles_file data/guacamol_v1_all.smiles
+```
+
 ## Change log
 - 15 Oct 2020: upgrade guacamol version to 0.5.3
 - 10 Nov 2021: upgrade guacamol version to 0.5.4. Migrate RDKit install conda->pip. Update dependencies.
+- 21 Feb 2022: addition of frag-gt baseline.
