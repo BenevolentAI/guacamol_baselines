@@ -1,6 +1,5 @@
-import random
-
 import numpy as np
+import random
 from frag_gt.src.fragstore import fragstore_factory
 from frag_gt.src.population import MolecularPopulationGenerator, Molecule
 from frag_gt.tests.utils import SAMPLE_FRAGSTORE_PATH, SAMPLE_SMILES_FILE
@@ -68,6 +67,8 @@ def test_population_generate_custom_operators():
 
 def test_tournament_selection():
     # Given
+    np.random.seed(1337)
+    random.seed(1337)
     current_pool = _scored_population()
 
     # When
