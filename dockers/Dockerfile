@@ -31,3 +31,6 @@ ADD . /app
 
 # Launch inside the folder
 WORKDIR /app/
+
+# install frag_gt
+RUN pip install --upgrade pip && pip install --no-cache-dir /app/frag_gt/
