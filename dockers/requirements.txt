@@ -6,7 +6,7 @@ joblib==0.12.5
 numpy==1.21.4
 tqdm==4.26.0
 cython==0.29
-nltk==3.4.5
+nltk==3.6.6
 flake8==3.5.0
 tensorflow==1.13.2
 keras==2.3.1
