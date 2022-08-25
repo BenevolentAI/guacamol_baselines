@@ -8,6 +8,7 @@ FragGT is a fragment-based evolutionary algorithm for generating molecules.
 
 ```bash
 conda create -y --name fraggt python=3.7
+conda activate fraggt
 pip install .
 ```
 
