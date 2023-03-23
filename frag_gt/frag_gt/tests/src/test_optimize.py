@@ -52,8 +52,9 @@ def test_fraggt_generator_custom_initial_population(tmpdir):
     # Given
     np.random.seed(1337)
     random.seed(1337)
-    starting_population = ["c1ccccc1"]
+    starting_population = ["c1cc(CCO)ccc1Br"]
     population_size = 10
+    n_generations = 2
     number_of_requested_molecules = 3
     optimizer = FragGTGenerator(smi_file=SAMPLE_SMILES_FILE,
                                 fragmentation_scheme="brics",
@@ -62,7 +63,7 @@ def test_fraggt_generator_custom_initial_population(tmpdir):
                                 operators=None,  # use default operators
                                 population_size=population_size,  # short run with small population
                                 n_mutations=5,
-                                generations=2,
+                                generations=n_generations,
                                 n_jobs=1,
                                 random_start=True,
                                 patience=5,

@@ -11,7 +11,7 @@ def test_query_builder():
     # given
     fragstore_qb = FragQueryBuilder(FRAGSTORE_DB,
                                     scorer="counts",
-                                    stochastic=True)
+                                    sort_by_score=False)
     query_frag = Chem.MolFromSmiles("[16*]c1ccccc1")
     gene_type = "16"
 
@@ -27,7 +27,7 @@ def test_query_builder_invalid_gene_type():
     # Given
     fragstore_qb = FragQueryBuilder(FRAGSTORE_DB,
                                     scorer="counts",
-                                    stochastic=True)
+                                    sort_by_score=True)
     query_frag = Chem.MolFromSmiles("[16*]c1ccccc1")
     gene_type = "16#INVALID_GENE_TYPE"
 

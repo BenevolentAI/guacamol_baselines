@@ -37,7 +37,7 @@ class MolecularPopulationGenerator:
         # the query builder supports the mutation operators and controls how we sample the fragstore
         self.fragstore_qb = FragQueryBuilder(self._fragstore,
                                              scorer=scorer,
-                                             stochastic=True)
+                                             sort_by_score=False)
         self.selection_method = selection_method
 
         # tuple of (mutation/crossover operator, probability of applying)

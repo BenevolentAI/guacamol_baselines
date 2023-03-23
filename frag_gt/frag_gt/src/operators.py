@@ -81,7 +81,7 @@ def delete_node_mutation(parent_mol: Chem.rdchem.Mol, fragmentor: FragmentorBase
         return []
 
     # Identify pendant frags (frags with only one attachment)
-    pendant_frag_idxs = [n for n, f in enumerate(frags)
+    pendant_frag_idxs = [n for n, f in enumerate(frags)  # todo counting stars is faster
                          if len(get_gene_type(f).split("#")) == 1]
 
     # If there are no pendant frags, return None
@@ -99,7 +99,7 @@ def delete_node_mutation(parent_mol: Chem.rdchem.Mol, fragmentor: FragmentorBase
             break
 
     # Identify frag and get atom idx of hanging edge with the same attachment_idx
-    # TODO: this could be simplified by only breaking one bond in the first place!
+    # TODO: this whole process could be simplified by only breaking one bond in the first place!
     remaining_frag_idx = -1
     for n, frag in enumerate(frags):
         for a in frag.GetAtoms():
@@ -198,21 +198,34 @@ def substitute_node_mutation(parent_mol: Chem.rdchem.Mol, fragmentor: Fragmentor
     Reconnect the molecule incorporating the mutant fragment in place of the query fragment
     """
 
-    # Fragment parent molecule
+    # fragment parent molecule
     frags = fragmentor.get_frags(parent_mol)
 
     # choose a fragment to mutate
     i = np.random.randint(0, len(frags))
     query_frag = frags.pop(i)
-
-    # retrieve pool
     gene_type = get_gene_type(query_frag)
-    mutant_smiles, _ = frag_db.query_frags(gene_type, query_frag)
 
     # TODO: Could try to rematch alignment instead of moving to next smiles? rematch by zscores? overcomplicated?
+    attempt = -1
     accept_mutant = False
-    while (accept_mutant is False) and (len(mutant_smiles) > 0):
-        mutant_frag = Chem.MolFromSmiles(mutant_smiles.pop(0))
+    while (attempt < 5) and (accept_mutant is False):
+        attempt += 1
+        logger.debug(f'substitution attempt: {attempt}')
+
+        # retrieve new fragment from fragment store via tournament selection
+        # todo what about smaller tournaments!
+        mutant_smiles, mutant_scores = frag_db.query_frags(gene_type, query_frag, n_choices=5)
+        if not len(mutant_scores):
+            logger.debug(f'nothing retrieved from db for {gene_type}')
+            continue
+        winning_mutant_smiles = mutant_smiles[np.argmax(mutant_scores)]
+        mutant_frag = Chem.MolFromSmiles(winning_mutant_smiles)
+
+        # mutant frag must be different from query
+        if Chem.MolToSmiles(mutant_frag) == Chem.MolToSmiles(query_frag):
+            logger.debug(f'substitute: skipping frag as its same as query')
+            continue
 
         # align attachment idxs of mutant frag to original reference
         mutant_frag = match_fragment_attachment_points(mutant_frag, query_frag)
@@ -220,8 +233,8 @@ def substitute_node_mutation(parent_mol: Chem.rdchem.Mol, fragmentor: Fragmentor
         # Check reaction types agree
         # TODO: this can be simplified as a set comparison while ignoring negatives
         accept_mutant = True
-        idx_type_list = [(a.GetIsotope(), int(a.GetProp("attachment_idx"))) for a in query_frag.GetAtoms() if
-                         a.GetSymbol() == "*"]
+        idx_type_list = [(a.GetIsotope(), int(a.GetProp("attachment_idx")))
+                         for a in query_frag.GetAtoms() if a.GetSymbol() == "*"]
         for a in mutant_frag.GetAtoms():
             if a.GetSymbol() == "*":
                 mutant_idx_type = (a.GetIsotope(), int(a.GetProp("attachment_idx")))
@@ -280,17 +293,15 @@ def add_node_mutation(parent_mol: Chem.rdchem.Mol, fragmentor: FragmentorBase,
             logger.debug(f"add_node_mutation: No small fragments in DB with cut_type: {added_cut_type}")
             continue
 
-        # TODO: BRICS has multiple options here so another nested while loop?!
         # Mutate existing fragment to contain an extra attachment point
         # Identify suitable cut type to add
         possible_joins = [rule for rule in fragmentor.recombination_rules if added_cut_type in rule]
         random.shuffle(possible_joins)
-        picked_join = set(possible_joins.pop(0))
-        if len(picked_join) == 1:  # since its a set {'5', '5'} becomes {'5'}
-            added_cut_type2 = picked_join.pop()
+        picked_join = possible_joins.pop(0)
+        if picked_join[0] == added_cut_type:
+            added_cut_type2 = picked_join[1]
         else:
-            picked_join.remove(added_cut_type)
-            added_cut_type2 = picked_join.pop()
+            added_cut_type2 = picked_join[0]
 
         # Given new cut type, try to mutate existing fragment
         mutant_gene_type_list = sorted([int(x) for x in gene_type_list if x is not ''] + [int(added_cut_type2)])
