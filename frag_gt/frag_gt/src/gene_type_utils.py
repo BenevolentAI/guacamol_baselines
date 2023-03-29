@@ -20,9 +20,8 @@ def get_gene_type(frag: Chem.rdchem.Mol):
     >>> "1#2#3#4"
     """
     cut_point_typelist = []
-    for atom in frag.GetAtoms():
-        if atom.GetSymbol() == "*":
-            cut_point_typelist.append(atom.GetIsotope())
+    for match in frag.GetSubstructMatches(DUMMY_ATOM):
+        cut_point_typelist.append(frag.GetAtomWithIdx(match[0]).GetIsotope())
     gene_type = "#".join([str(x) for x in sorted(cut_point_typelist)])
     return gene_type
 
