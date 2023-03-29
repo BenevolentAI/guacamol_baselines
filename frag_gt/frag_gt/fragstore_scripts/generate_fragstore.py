@@ -24,7 +24,9 @@ class FragmentStoreCreator:
         self.fragstore_type = "in_memory"
 
         # retrieve fragstore object, this knows how to read and write from fragstore
-        self.frag_db = fragstore_factory(self.fragstore_type, "no path needed since this is a blank slate")
+        self.frag_db = fragstore_factory(self.fragstore_type,
+                                         "no/path/needed/yet/since/this/is/a/blank/slate",
+                                         scheme=self.fragmentor.name)
 
         # single processor takes 2.1 hours on chemblv24
         self.n_jobs = 1
@@ -139,7 +141,7 @@ def main():
     db_generator.create_gene_type_table()
 
     # save to disc
-    output_name = os.path.basename(args.smiles_file).split('.')[0] + f"_fragstore_{args.frag_scheme}.pkl"
+    output_name = str(os.path.basename(args.smiles_file).split('.')[0]) + f"_fragstore_{args.frag_scheme}.pkl"
     output_path = os.path.join(args.output_dir, output_name)
     db_generator.save_fragstore_to_disc(output_path)
 

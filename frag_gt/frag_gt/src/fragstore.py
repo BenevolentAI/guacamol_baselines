@@ -4,14 +4,15 @@ import pickle
 import uuid
 from abc import ABC, abstractmethod
 
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
 
 
 class FragStoreBase(ABC):
-    def __init__(self, path: str):
+    def __init__(self, path: str, scheme: Optional[str]):
         self.path = path
+        self.scheme = scheme
 
     @abstractmethod
     def add_records(self, collection: str, records):
@@ -32,10 +33,10 @@ class FragStoreBase(ABC):
 
 class MemoryFragStore(FragStoreBase):
     """ Keep fragment database in memory """
-    # todo include details of the fragmentation scheme in the load and save functions
-    def __init__(self, path: str):
+    def __init__(self, path: str, scheme: Optional[str] = None):
         self.store: Dict[str, Any] = {}
-        super().__init__(path=path)
+        self.save_genes = False  # for debugging
+        super().__init__(path=path, scheme=scheme)
 
     def add_records(self, collection: str, records):
         """
@@ -78,37 +79,55 @@ class MemoryFragStore(FragStoreBase):
 
         # save slim version for general usage (only gene_types key)
         self._save(path, "gene_types")
+        logger.info(f"Saving: {path}")
 
-        # save all including parents (for debugging where frags came from)
-        gene_type_outfile = path.replace(".pkl", "_with_genes.pkl")
-        self._save(gene_type_outfile)
-        logger.info(f"Saving: {gene_type_outfile}")
+        if self.save_genes:
+            # save all including parents (for debugging where frags came from)
+            gene_type_outfile = path.replace(".pkl", "_with_genes.pkl")
+            self._save(gene_type_outfile)
+            logger.info(f"Saving: {gene_type_outfile}")
 
     def _save(self, path, collection=None):
         """ Save self.store to pickle, if collection_name is provided only save this collection. """
         with open(path, "wb") as f:
             if collection is None:
-                pickle.dump(self.store, f)
+                pickle.dump((self.scheme, self.store), f)
             else:
                 single_collection = {collection: self.store[collection]}
-                pickle.dump(single_collection, f)
+                pickle.dump((self.scheme, single_collection), f)
 
     def load(self):
         with open(self.path, "rb") as f:
-            self.store: Dict[str, Any] = pickle.load(f)
+            content = pickle.load(f)
+            self.scheme: str = content[0]
+            self.store: Dict[str, Any] = content[1]
+            del content
             logger.info(f"loaded {self.path}")
 
         if "gene_types" in self.store:
             slim = {x["gene_type"]: x for x in self.store["gene_types"].values()}
             self.store["gene_types"] = slim
 
+        assert self.scheme is not None
 
-def fragstore_factory(frag_store_type: str, path: str):
+
+def fragstore_factory(frag_store_type: str, path: str, scheme: Optional[str] = None):
+    """
+    factory for fragment stores
+
+    Args:
+        frag_store_type: type of store, currently only 'in_memory' supported
+        path: path to fragstore (can be used to specify name of database for other types of stores)
+        scheme: type of fragmentation scheme used to generate fragment store (if None, will be populated by .load())
+
+    Returns:
+        fragment store object, can be queried using query builders
+    """
     frag_stores = {
         "in_memory": MemoryFragStore,
     }
     if frag_store_type.lower() in frag_stores:
-        return frag_stores[frag_store_type](path)
+        return frag_stores[frag_store_type](path, scheme)
     else:
         raise NotImplementedError(f"frag store {frag_store_type} not recognised. "
                                   f"Valid frag stores: {list(frag_stores.keys())}")

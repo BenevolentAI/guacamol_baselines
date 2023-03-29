@@ -32,13 +32,12 @@ class MolecularPopulationGenerator:
         self.fragmentor = fragmentor_factory(fragmentation_scheme)
         self._fragstore_path = fragstore_path
         self._fragstore = fragstore_factory("in_memory", fragstore_path)
-        # should probably assert fragmentor and fragstore have same scheme
 
         # the query builder supports the mutation operators and controls how we sample the fragstore
         self.fragstore_qb = FragQueryBuilder(self._fragstore,
                                              scorer=scorer,
                                              sort_by_score=False)
-        self.selection_method = selection_method
+        assert self._fragstore.scheme == self.fragmentor.name
 
         # tuple of (mutation/crossover operator, probability of applying)
         if operators is None:
@@ -53,6 +52,7 @@ class MolecularPopulationGenerator:
         assert sum([tup[1] for tup in operators]) == 1.0, "operator probabilities must sum to one"
         self.mol_operators, self.mol_operator_probs = zip(*operators)
         self.allow_unspecified_stereo = allow_unspecified_stereo
+        self.selection_method = selection_method
 
         # keep substructures fixed in the population
         self._fixed_substructure_smarts = fixed_substructure_smarts
