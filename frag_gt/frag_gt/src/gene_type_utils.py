@@ -1,7 +1,7 @@
 import logging
+from typing import List, Set, Tuple
 
 from rdkit import Chem, RDLogger
-from typing import List
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +24,12 @@ def get_gene_type(frag: Chem.rdchem.Mol):
         cut_point_typelist.append(frag.GetAtomWithIdx(match[0]).GetIsotope())
     gene_type = "#".join([str(x) for x in sorted(cut_point_typelist)])
     return gene_type
+
+
+def get_attachment_idx_type_pairs(frag: Chem.rdchem.Mol) -> Set[Tuple[int, int]]:
+    """ return a set of (attachment_type, attachment_idx) pairs for the input fragment """
+    return {(a.GetIsotope(), int(a.GetProp("attachment_idx")))
+            for a in frag.GetAtoms() if a.GetSymbol() == "*"}
 
 
 def get_haplotype_from_gene_frag(frag: Chem.rdchem.Mol) -> Chem.rdchem.Mol:

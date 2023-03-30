@@ -1,9 +1,11 @@
 import itertools
+from typing import Dict, Optional, Tuple, List, Set
 
 import numpy as np
 from rdkit import Chem
 from rdkit.Chem.rdmolops import RDKFingerprint
-from typing import Dict, Optional, Tuple, List
+
+from frag_gt.src.gene_type_utils import get_attachment_idx_type_pairs
 
 DUMMY_ATOM = Chem.MolFromSmarts("[#0]")
 
@@ -22,7 +24,7 @@ def create_alignment_fp(frag: Chem.rdchem.Mol, fp_length: int = 256) -> Dict:
     return alignment_fp
 
 
-def compare_alignment_fps(afp1: Dict, afp2: Dict) -> Tuple[Dict, float]:
+def compare_alignment_fps(afp1: Dict, afp2: Dict) -> Tuple[Dict[int, int], float]:
     """
     Get alignment between fragments. Match [*] in afp1 to [*] in afp2 based on similar structural environments.
     The atomic property "attachment_idx" is used to match attachment points (idx must be unique in frag)
@@ -124,6 +126,28 @@ def compare_alignment_fps(afp1: Dict, afp2: Dict) -> Tuple[Dict, float]:
     return final_alignment, best_score
 
 
+def trivial_matching_for_unique_isotope_pairs(frag_idx_type_pairs: Set[Tuple[int, int]],
+                                              ref_idx_type_pairs: Set[Tuple[int, int]]) -> Dict[int, int]:
+    ref_iso_to_att_map = {iso: att_idx for iso, att_idx in ref_idx_type_pairs}
+
+    alignment_map = {}
+    mismatch = -1
+    for iso, frag_att_idx in frag_idx_type_pairs:
+        if iso in ref_iso_to_att_map:
+            alignment_map[frag_att_idx] = ref_iso_to_att_map[iso]
+        else:
+            alignment_map[frag_att_idx] = mismatch
+            mismatch -= 1
+
+    return alignment_map
+
+
+def unique_isotope_check(mol: Chem.rdchem.Mol):
+    idx_type_pairs = get_attachment_idx_type_pairs(mol)
+    unique = len({iso for iso, _ in idx_type_pairs}) == len(idx_type_pairs)
+    return unique, idx_type_pairs
+
+
 def renumber_frag_attachment_idxs(mol: Chem.rdchem.Mol, idxmap: Optional[Dict[int, int]] = None) -> Chem.rdchem.Mol:
     """
     Given a frag with attachment points (RDKit mol object), add "attachment_idx" property to attachment atoms
@@ -131,13 +155,13 @@ def renumber_frag_attachment_idxs(mol: Chem.rdchem.Mol, idxmap: Optional[Dict[in
     >>>renumber_frag_attachment_idxs(Chem.MolFromSmiles("c1c([7*])cccc1[4*]"))
     """
     idx = 0
-    for a in mol.GetAtoms():
-        if a.GetSymbol() == "*":
-            if idxmap is None:
-                a.SetProp("attachment_idx", str(idx))
-                idx += 1
-            else:
-                a.SetProp("attachment_idx", str(idxmap[int(a.GetProp("attachment_idx"))]))
+    for m in mol.GetSubstructMatches(DUMMY_ATOM):
+        a = mol.GetAtomWithIdx(m[0])
+        if idxmap is None:
+            a.SetProp("attachment_idx", str(idx))
+            idx += 1
+        else:
+            a.SetProp("attachment_idx", str(idxmap[int(a.GetProp("attachment_idx"))]))
     return mol
 
 
@@ -155,9 +179,16 @@ def match_fragment_attachment_points(frag: Chem.rdchem.Mol, reference_frag: Chem
     frag = renumber_frag_attachment_idxs(frag)
 
     # Align
-    afp1 = create_alignment_fp(frag)
-    afp2 = create_alignment_fp(reference_frag)
-    alignment, _ = compare_alignment_fps(afp1, afp2)
+    # first check for a trivial alignment (unique isotopes in both ref and frag)
+    ref_unique, ref_idx_type_pairs = unique_isotope_check(reference_frag)
+    frag_unique, frag_idx_type_pairs = unique_isotope_check(frag)
+    if ref_unique and frag_unique:
+        alignment = trivial_matching_for_unique_isotope_pairs(frag_idx_type_pairs, ref_idx_type_pairs)
+    else:
+        # todo symmetrical gene types?
+        afp1 = create_alignment_fp(frag)
+        afp2 = create_alignment_fp(reference_frag)
+        alignment, _ = compare_alignment_fps(afp1, afp2)
 
     # Renumber mutant attachment idxs according to alignment
     aligned_frag = renumber_frag_attachment_idxs(frag, idxmap=alignment)
