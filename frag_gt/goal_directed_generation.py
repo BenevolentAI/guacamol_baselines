@@ -20,7 +20,7 @@ setup_default_logger()
 
 
 class FragGTGoalDirectedGenerator(FragGTGenerator, GoalDirectedGenerator):
-    """ wrapper class intended to keep FragGT and GuacaMol independent """
+    """ wrapper class to keep FragGT and GuacaMol independent """
 
     def generate_optimized_molecules(self, scoring_function: ScoringFunction, number_molecules: int,
                                      starting_population: Optional[List[str]] = None) -> List[str]:
@@ -62,7 +62,7 @@ def main():
     if args.output_dir is None:
         args.output_dir = os.path.dirname(os.path.realpath(__file__))
 
-    # # setup writing directory for intermediate results (requires modification of guacamol, coming soon)
+    # # todo setup writing directory for intermediate results (requires modification of guacamol, coming soon)
     # intermediate_results_dir: Optional[str] = None
     # if args.write_all_generations:
     #     intermediate_results_dir = os.path.join(args.output_dir, "generations/")
