@@ -1,15 +1,15 @@
 import logging
 import random
+from typing import Dict, List, Tuple
 
 import numpy as np
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from rdkit.Chem.BRICS import BreakBRICSBonds
-from typing import Dict, List, Tuple
 
 from frag_gt.src.afp import renumber_frag_attachment_idxs, match_fragment_attachment_points
 from frag_gt.src.fragmentors import FragmentorBase
-from frag_gt.src.gene_type_utils import get_gene_type, get_haplotype_from_gene_frag
+from frag_gt.src.gene_type_utils import get_gene_type, get_haplotype_from_gene_frag, get_attachment_idx_type_pairs
 from frag_gt.src.query_builder import FragQueryBuilder
 
 logger = logging.getLogger(__name__)
@@ -36,8 +36,8 @@ def connect_mol_from_frags(frags: List[Chem.rdchem.Mol], fragmentor: FragmentorB
     # get pairs to be bonded together
     # dict keys are attachment_idxs. A pair of * atoms should both have this attachment_idx in the input frags
     # dict values are two-value tuple of lists. ([], [])
-    # the first list contains mol object atom idxs to be bonded
-    # the second list describes the type of re-connection that should be made (used to select bond type)
+    # - the first list contains mol object atom idxs to be bonded
+    # - the second list describes the type of re-connection that should be made (used to select bond type)
     # e.g. pairs = {3: [[0, 15], [3, 3]], 1: [[8, 17], [1, 1]], 2: [[21, 30], [7, 7]]}
     pairs = {}  # type: Dict[int, Tuple[List[int], List[str]]]
     for match in composite_frags.GetSubstructMatches(DUMMY_PLUS_ANCHOR_SMARTS):
@@ -78,10 +78,11 @@ def delete_node_mutation(parent_mol: Chem.rdchem.Mol, fragmentor: FragmentorBase
 
     # if mol could not be fragmented, return empty list
     if len(frags) <= 1:
+        logger.debug("MutationDelNode: mol could not be fragmented")
         return []
 
     # Identify pendant frags (frags with only one attachment)
-    pendant_frag_idxs = [n for n, f in enumerate(frags)  # todo counting stars is faster
+    pendant_frag_idxs = [n for n, f in enumerate(frags)
                          if len(get_gene_type(f).split("#")) == 1]
 
     # If there are no pendant frags, return None
@@ -89,7 +90,7 @@ def delete_node_mutation(parent_mol: Chem.rdchem.Mol, fragmentor: FragmentorBase
         return []
 
     # Choose a pendant fragment to remove
-    i = np.random.randint(0, len(pendant_frag_idxs))
+    i = np.random.randint(len(pendant_frag_idxs))
     deleted_frag = frags.pop(pendant_frag_idxs[i])
 
     # Identify remaining fragment with hanging edge
@@ -99,7 +100,6 @@ def delete_node_mutation(parent_mol: Chem.rdchem.Mol, fragmentor: FragmentorBase
             break
 
     # Identify frag and get atom idx of hanging edge with the same attachment_idx
-    # TODO: this whole process could be simplified by only breaking one bond in the first place!
     remaining_frag_idx = -1
     for n, frag in enumerate(frags):
         for a in frag.GetAtoms():
@@ -125,7 +125,7 @@ def delete_node_mutation(parent_mol: Chem.rdchem.Mol, fragmentor: FragmentorBase
 
     # Check if frag exists in db (2) Check for specific gene among results
     if len(gene_type_results) > 1:
-        logger.warning(f"DB is corrupted, multiple results for gene_type {gene_type}")
+        logger.warning(f"MutationDelNode: DB is corrupted, multiple results for gene_type {gene_type}")
     elif gene_type == "":
         # If there are only two frags in original molecule and we are deleting one of them.
         # Gene type is "" as remaining frag is the whole molecule
@@ -163,18 +163,15 @@ def delete_node_mutation(parent_mol: Chem.rdchem.Mol, fragmentor: FragmentorBase
             mutant_frag = match_fragment_attachment_points(mutant_frag, query_frag)
 
             # Check reaction types agree
-            accept_mutant = True
-            idx_type_list = [(a.GetIsotope(), int(a.GetProp("attachment_idx"))) for a in query_frag.GetAtoms() if
-                             a.GetSymbol() == "*"]
-            for a in mutant_frag.GetAtoms():
-                if a.GetSymbol() == "*":
-                    mutant_idx_type = (a.GetIsotope(), int(a.GetProp("attachment_idx")))
-                    if mutant_idx_type not in idx_type_list:
-                        logger.debug("Not matching types")
-                        logger.debug(idx_type_list)
-                        logger.debug(mutant_idx_type)
-                        accept_mutant = False
-                        break
+            query_idx_types = get_attachment_idx_type_pairs(query_frag)
+            mutant_idx_types = get_attachment_idx_type_pairs(mutant_frag)
+            if query_idx_types != mutant_idx_types:
+                accept_mutant = False
+                logger.debug(f"MutationDelNode: Not matching types: {query_idx_types} {mutant_idx_types}")
+                logger.debug(f"MutationDelNode: {Chem.MolToSmiles(parent_mol)} {Chem.MolToSmiles(query_frag)} "
+                             f"{Chem.MolToSmiles(mutant_frag)}")
+            else:
+                accept_mutant = True
 
     if accept_mutant:
         # Reconstruct list of frags for new molecule
@@ -202,7 +199,7 @@ def substitute_node_mutation(parent_mol: Chem.rdchem.Mol, fragmentor: Fragmentor
     frags = fragmentor.get_frags(parent_mol)
 
     # choose a fragment to mutate
-    i = np.random.randint(0, len(frags))
+    i = np.random.randint(len(frags))
     query_frag = frags.pop(i)
     gene_type = get_gene_type(query_frag)
 
@@ -211,37 +208,36 @@ def substitute_node_mutation(parent_mol: Chem.rdchem.Mol, fragmentor: Fragmentor
     accept_mutant = False
     while (attempt < 5) and (accept_mutant is False):
         attempt += 1
-        logger.debug(f'substitution attempt: {attempt}')
+        if attempt:
+            logger.debug(f"MutationSubNode: attempt {attempt}")
 
         # retrieve new fragment from fragment store via tournament selection
         # todo what about smaller tournaments!
         mutant_smiles, mutant_scores = frag_db.query_frags(gene_type, query_frag, n_choices=5)
         if not len(mutant_scores):
-            logger.debug(f'nothing retrieved from db for {gene_type}')
+            logger.debug(f'MutationSubNode: nothing retrieved from db for {gene_type}')
             continue
         winning_mutant_smiles = mutant_smiles[np.argmax(mutant_scores)]
         mutant_frag = Chem.MolFromSmiles(winning_mutant_smiles)
 
         # mutant frag must be different from query
         if Chem.MolToSmiles(mutant_frag) == Chem.MolToSmiles(query_frag):
-            logger.debug(f'substitute: skipping frag as its same as query')
+            logger.debug(f'MutationSubNode: skipping frag as its same as query')
             continue
 
         # align attachment idxs of mutant frag to original reference
         mutant_frag = match_fragment_attachment_points(mutant_frag, query_frag)
 
         # Check reaction types agree
-        # TODO: this can be simplified as a set comparison while ignoring negatives
-        accept_mutant = True
-        idx_type_list = [(a.GetIsotope(), int(a.GetProp("attachment_idx")))
-                         for a in query_frag.GetAtoms() if a.GetSymbol() == "*"]
-        for a in mutant_frag.GetAtoms():
-            if a.GetSymbol() == "*":
-                mutant_idx_type = (a.GetIsotope(), int(a.GetProp("attachment_idx")))
-                if mutant_idx_type not in idx_type_list:
-                    logger.debug(f"MutationSubNode: Not matching types: {idx_type_list} {mutant_idx_type}")
-                    accept_mutant = False
-                    break
+        query_idx_types = get_attachment_idx_type_pairs(query_frag)
+        mutant_idx_types = get_attachment_idx_type_pairs(mutant_frag)
+        if query_idx_types != mutant_idx_types:
+            accept_mutant = False
+            logger.debug(f"MutationSubNode: Not matching types: {query_idx_types} {mutant_idx_types}")
+            logger.debug(f"MutationSubNode: {Chem.MolToSmiles(parent_mol)} {Chem.MolToSmiles(query_frag)} "
+                         f"{Chem.MolToSmiles(mutant_frag)}")
+        else:
+            accept_mutant = True
 
     if accept_mutant:
         # reconstruct list of frags for new molecule
@@ -252,7 +248,7 @@ def substitute_node_mutation(parent_mol: Chem.rdchem.Mol, fragmentor: Fragmentor
 
         return [new_mol]
     else:
-        logger.debug(f"substitute_node_mutation: no substitutions were found for {Chem.MolToSmiles(query_frag)}")
+        logger.debug(f"MutationSubNode: no substitutions were found for {Chem.MolToSmiles(query_frag)}")
         return []
 
 
@@ -268,7 +264,7 @@ def add_node_mutation(parent_mol: Chem.rdchem.Mol, fragmentor: FragmentorBase,
     frags = fragmentor.get_frags(parent_mol)
 
     # Choose a random fragment to mutate
-    i = np.random.randint(0, len(frags))
+    i = np.random.randint(len(frags))
     query_frag = frags.pop(i)
 
     # Get query fragment gene_type
@@ -290,7 +286,7 @@ def add_node_mutation(parent_mol: Chem.rdchem.Mol, fragmentor: FragmentorBase,
         # If no suitable nodes exist, continue to next cut type
         pendant_smiles_list, _ = frag_db.query_frags(added_cut_type, Chem.MolFromSmiles(f"[{added_cut_type}*]C"))
         if not len(pendant_smiles_list):
-            logger.debug(f"add_node_mutation: No small fragments in DB with cut_type: {added_cut_type}")
+            logger.debug(f"MutationAddNode: No small fragments in DB with cut_type: {added_cut_type}")
             continue
 
         # Mutate existing fragment to contain an extra attachment point
@@ -306,7 +302,7 @@ def add_node_mutation(parent_mol: Chem.rdchem.Mol, fragmentor: FragmentorBase,
         # Given new cut type, try to mutate existing fragment
         mutant_gene_type_list = sorted([int(x) for x in gene_type_list if x is not ''] + [int(added_cut_type2)])
         mutant_gene_type = "#".join([str(x) for x in mutant_gene_type_list])
-        logger.debug(f"add_node_mutation: Attempting to mutate existing gene {gene_type} -> {mutant_gene_type}")
+        # logger.debug(f"MutationAddNode: Attempting to mutate existing gene {gene_type} -> {mutant_gene_type}")
 
         # Query database to retrieve frags belonging to mutant_gene_type
         mutant_gene_list, _ = frag_db.query_frags(mutant_gene_type, query_frag)
@@ -319,23 +315,17 @@ def add_node_mutation(parent_mol: Chem.rdchem.Mol, fragmentor: FragmentorBase,
             mutant_frag = match_fragment_attachment_points(mutant_frag, query_frag)
 
             # Check aligned query and mutant cut-types agree, else continue to next candidate gene
-            accept_mutant = True
-
-            # Query frag aligned type details
-            idx_type_list = [(a.GetIsotope(), int(a.GetProp("attachment_idx")))
-                             for a in query_frag.GetAtoms() if a.GetSymbol() == "*"]
-
-            # Mutant frag aligned type details, ignore att id -1 since this is the newly added edge
-            # TODO: this can be simplified as a set comparison while ignoring negatives
-            for a in mutant_frag.GetAtoms():
-                if a.GetSymbol() == "*":
-                    mutant_idx_type = (a.GetIsotope(), int(a.GetProp("attachment_idx")))
-                    if mutant_idx_type[1] < 0:
-                        continue
-                    if mutant_idx_type not in idx_type_list:
-                        logger.debug(f"add_node_mutation: Not matching types: {idx_type_list} {mutant_idx_type}")
-                        accept_mutant = False
-                        break
+            query_idx_types = get_attachment_idx_type_pairs(query_frag)
+            mutant_idx_types = get_attachment_idx_type_pairs(mutant_frag)
+            difference = mutant_idx_types - query_idx_types
+            if len(difference) == 1 and int(difference.pop()[1]) == -1:
+                # ignore attachment id -1 since this is the newly added edge
+                accept_mutant = True
+            else:
+                accept_mutant = False
+                logger.debug(f"MutationAddNode: Not matching types: {query_idx_types} {mutant_idx_types}")
+                logger.debug(f"MutationAddNode: {Chem.MolToSmiles(parent_mol)} {Chem.MolToSmiles(query_frag)} "
+                             f"{Chem.MolToSmiles(mutant_frag)}")
 
     if accept_mutant:
 
@@ -355,7 +345,7 @@ def add_node_mutation(parent_mol: Chem.rdchem.Mol, fragmentor: FragmentorBase,
 
         return [new_mol]
     else:
-        logger.debug(f"add_node_mutation: no suitable additions were found for {Chem.MolToSmiles(query_frag)}")
+        logger.debug(f"MutationAddNode: no suitable additions were found for {Chem.MolToSmiles(query_frag)}")
         return []
 
 
@@ -375,7 +365,7 @@ def single_point_crossover(m1: Chem.rdchem.Mol, m2: Chem.rdchem.Mol,
 
     # If no applicable cut types, return None
     if not len(common_cts):
-        logger.debug(f"single_point_crossover: no common cut types: {Chem.MolToSmiles(m1)}, {Chem.MolToSmiles(m2)}")
+        logger.debug(f"SPCrossover: no common cut types: {Chem.MolToSmiles(m1)}, {Chem.MolToSmiles(m2)}")
         return []
 
     # Filter to cuts in common
