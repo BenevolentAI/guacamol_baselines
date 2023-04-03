@@ -10,14 +10,13 @@ from frag_gt.src.fragstore import FragStoreBase
 logger = logging.getLogger(__name__)
 
 
-# todo should random should be null scorer since now it doesnt affect sampling?
 class FragQueryBuilder:
     """
     This class is used to communicate with a fragment store to retrieve fragments to replace a given reference fragment.
     Candidate replacement fragments are identified by their gene type,
     if desired a random sample is taken and fragments are scored by either random | count | ecfp4 | afps
     """
-    def __init__(self, frag_store: FragStoreBase, scorer: str = "random", sort_by_score: Optional[bool] = False):
+    def __init__(self, frag_store: FragStoreBase, scorer: str = "random", sort_by_score: bool = False):
         self.frag_sampler = FragScorer(scorer=scorer, sort=sort_by_score)
         self.db = frag_store
         self.db.load()

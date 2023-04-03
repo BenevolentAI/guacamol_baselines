@@ -51,10 +51,10 @@ class FragScorer:
             scores = counts
         elif self.scorer == "ecfp4":
             # score frags using ecfp4 similarity to query frag
-            scores = ecfp_fragment_scorer(query_frag, smiles)
+            scores = ecfp_fragment_scorer(query_frag, list(smiles))
         elif self.scorer == "afps":
             # score frags using the alignment score
-            scores = afp_fragment_scorer(query_frag, smiles)
+            scores = afp_fragment_scorer(query_frag, list(smiles))
         elif self.scorer == "random":
             # random frag scorer
             scores = np.full(len(smiles), np.nan)

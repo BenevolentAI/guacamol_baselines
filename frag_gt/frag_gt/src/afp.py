@@ -4,13 +4,14 @@ from typing import Dict, Optional, Tuple, List, Set
 import numpy as np
 from rdkit import Chem
 from rdkit.Chem.rdmolops import RDKFingerprint
+from rdkit.DataStructs.cDataStructs import ExplicitBitVect
 
 from frag_gt.src.gene_type_utils import get_attachment_type_idx_pairs
 
 DUMMY_ATOM = Chem.MolFromSmarts("[#0]")
 
 
-def create_alignment_fp(frag: Chem.rdchem.Mol, fp_length: int = 256) -> Dict:
+def create_alignment_fp(frag: Chem.rdchem.Mol, fp_length: int = 256) -> Dict[int, ExplicitBitVect]:
     """
     Create alignment fingerprint (afp) for rdkit mol object containing wildcard attachment points ([*])
     Assumes no two attachment points have the same idx
@@ -23,7 +24,8 @@ def create_alignment_fp(frag: Chem.rdchem.Mol, fp_length: int = 256) -> Dict:
     return alignment_fp
 
 
-def compare_alignment_fps(afp1: Dict, afp2: Dict, mismatch_idx=-1) -> Tuple[Dict[int, int], float]:
+def compare_alignment_fps(afp1: Dict[int, ExplicitBitVect], afp2: Dict[int, ExplicitBitVect], mismatch_idx: int = -1,
+                          ) -> Tuple[Dict[int, int], float]:
     """
     Get alignment between fragments. Match [*] in afp1 to [*] in afp2 based on similar structural environments.
     The atomic property "attachment_idx" is used to match attachment points (idx must be unique in frag)
