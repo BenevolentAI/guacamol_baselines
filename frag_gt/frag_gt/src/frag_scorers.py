@@ -41,7 +41,7 @@ class FragScorer:
         Returns:
             list of (smiles, score) tuples
         """
-        # Unzip list of tuples retrieved from fragstore
+        # unzip list of tuples retrieved from fragstore
         # this will include any precalculated or saved properties stored with each fragment
         # (e.g. count of how many times fragment occurred in corpus)
         smiles, counts = zip(*gene_frag_list)
@@ -61,7 +61,7 @@ class FragScorer:
             smiles = list(smiles)
             shuffle(smiles)
         else:
-            raise ValueError(f"requested scorer for sampling not recognised: {self.scorer}")
+            raise ValueError(f"requested scorer not recognised: {self.scorer}")
 
         if self.sort:
             # return smiles according to decreasing score (deterministically)
