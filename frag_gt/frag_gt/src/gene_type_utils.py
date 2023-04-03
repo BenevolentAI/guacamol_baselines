@@ -26,7 +26,7 @@ def get_gene_type(frag: Chem.rdchem.Mol):
     return gene_type
 
 
-def get_attachment_idx_type_pairs(frag: Chem.rdchem.Mol) -> Set[Tuple[int, int]]:
+def get_attachment_type_idx_pairs(frag: Chem.rdchem.Mol) -> Set[Tuple[int, int]]:
     """ return a set of (attachment_type, attachment_idx) pairs for the input fragment """
     return {(a.GetIsotope(), int(a.GetProp("attachment_idx")))
             for a in frag.GetAtoms() if a.GetSymbol() == "*"}

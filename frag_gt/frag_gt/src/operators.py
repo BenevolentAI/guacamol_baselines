@@ -9,7 +9,7 @@ from rdkit.Chem.BRICS import BreakBRICSBonds
 
 from frag_gt.src.afp import renumber_frag_attachment_idxs, match_fragment_attachment_points
 from frag_gt.src.fragmentors import FragmentorBase
-from frag_gt.src.gene_type_utils import get_gene_type, get_haplotype_from_gene_frag, get_attachment_idx_type_pairs
+from frag_gt.src.gene_type_utils import get_gene_type, get_haplotype_from_gene_frag, get_attachment_type_idx_pairs
 from frag_gt.src.query_builder import FragQueryBuilder
 
 logger = logging.getLogger(__name__)
@@ -163,8 +163,8 @@ def delete_node_mutation(parent_mol: Chem.rdchem.Mol, fragmentor: FragmentorBase
             mutant_frag = match_fragment_attachment_points(mutant_frag, query_frag)
 
             # Check reaction types agree
-            query_idx_types = get_attachment_idx_type_pairs(query_frag)
-            mutant_idx_types = get_attachment_idx_type_pairs(mutant_frag)
+            query_idx_types = get_attachment_type_idx_pairs(query_frag)
+            mutant_idx_types = get_attachment_type_idx_pairs(mutant_frag)
             if query_idx_types != mutant_idx_types:
                 accept_mutant = False
                 logger.debug(f"MutationDelNode: Not matching types: {query_idx_types} {mutant_idx_types}")
@@ -203,16 +203,13 @@ def substitute_node_mutation(parent_mol: Chem.rdchem.Mol, fragmentor: Fragmentor
     query_frag = frags.pop(i)
     gene_type = get_gene_type(query_frag)
 
-    # TODO: Could try to rematch alignment instead of moving to next smiles? rematch by zscores? overcomplicated?
     attempt = -1
     accept_mutant = False
     while (attempt < 5) and (accept_mutant is False):
         attempt += 1
-        if attempt:
-            logger.debug(f"MutationSubNode: attempt {attempt}")
 
         # retrieve new fragment from fragment store via tournament selection
-        # todo what about smaller tournaments!
+        # todo what about smaller tournaments pool sizes are very uneven
         mutant_smiles, mutant_scores = frag_db.query_frags(gene_type, query_frag, n_choices=5)
         if not len(mutant_scores):
             logger.debug(f'MutationSubNode: nothing retrieved from db for {gene_type}')
@@ -229,8 +226,9 @@ def substitute_node_mutation(parent_mol: Chem.rdchem.Mol, fragmentor: Fragmentor
         mutant_frag = match_fragment_attachment_points(mutant_frag, query_frag)
 
         # Check reaction types agree
-        query_idx_types = get_attachment_idx_type_pairs(query_frag)
-        mutant_idx_types = get_attachment_idx_type_pairs(mutant_frag)
+        # todo: Could try to rematch alignment instead of moving to next smiles?
+        query_idx_types = get_attachment_type_idx_pairs(query_frag)
+        mutant_idx_types = get_attachment_type_idx_pairs(mutant_frag)
         if query_idx_types != mutant_idx_types:
             accept_mutant = False
             logger.debug(f"MutationSubNode: Not matching types: {query_idx_types} {mutant_idx_types}")
@@ -315,8 +313,8 @@ def add_node_mutation(parent_mol: Chem.rdchem.Mol, fragmentor: FragmentorBase,
             mutant_frag = match_fragment_attachment_points(mutant_frag, query_frag)
 
             # Check aligned query and mutant cut-types agree, else continue to next candidate gene
-            query_idx_types = get_attachment_idx_type_pairs(query_frag)
-            mutant_idx_types = get_attachment_idx_type_pairs(mutant_frag)
+            query_idx_types = get_attachment_type_idx_pairs(query_frag)
+            mutant_idx_types = get_attachment_type_idx_pairs(mutant_frag)
             difference = mutant_idx_types - query_idx_types
             if len(difference) == 1 and int(difference.pop()[1]) == -1:
                 # ignore attachment id -1 since this is the newly added edge

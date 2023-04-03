@@ -1,9 +1,9 @@
 import logging
 from collections import namedtuple
+from typing import List, Optional, Tuple
 
 import numpy as np
 from rdkit import Chem
-from typing import List, Optional, Tuple
 
 from frag_gt.src.fragmentors import fragmentor_factory
 from frag_gt.src.fragstore import fragstore_factory

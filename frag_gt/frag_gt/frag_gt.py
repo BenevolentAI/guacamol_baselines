@@ -1,11 +1,11 @@
 import logging
 import os
 from time import time
+from typing import List, Optional, Set, Tuple
 
 import numpy as np
 import pandas as pd
 from rdkit import Chem
-from typing import List, Optional, Set, Tuple
 
 from frag_gt.src.io import load_smiles_from_file, valid_mols_from_smiles
 from frag_gt.src.mapelites import map_elites_factory
