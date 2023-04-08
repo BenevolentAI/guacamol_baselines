@@ -140,11 +140,6 @@ output_smis = optimizer.generate_optimized_molecules(scoring_function=scoring_fu
 
 This will produce outputs per generation in the `intermediate_results_dir`.
 
-#### Component diagram
-
-The FragGT contains a number of modules. An overview of the components can be seen below:
-
-![DeeplyTough overview figure](frag-gt-component-diagram.png?raw=true "FragGT component diagram.")
 
 #### Licence
 
