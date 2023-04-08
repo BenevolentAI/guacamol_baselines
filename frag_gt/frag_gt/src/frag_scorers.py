@@ -85,17 +85,17 @@ def afp_fragment_scorer(query_mol: Chem.rdchem.Mol, smiles_list: List[str]) -> L
             scores = ecfp_fragment_scorer(query_mol, smiles_list)
         else:
             raise AssertionError(e)
-    return scores
+    return list(scores)
 
 
-def ecfp_fragment_scorer(query_mol: Chem.rdchem.Mol, smiles_list: List[str]) -> List[float]:
+def ecfp_fragment_scorer(query_mol: Chem.rdchem.Mol, smiles_list: List[str], nbits: int = 256) -> List[float]:
     scores = np.zeros(len(smiles_list))
-    query_fp = AllChem.GetMorganFingerprintAsBitVect(query_mol, 2, nBits=512)
+    query_fp = AllChem.GetMorganFingerprintAsBitVect(query_mol, 2, nBits=nbits)
     for n, s in enumerate(smiles_list):
         m = Chem.MolFromSmiles(s)
         if m is None:
             score = np.nan
         else:
-            score = DataStructs.TanimotoSimilarity(query_fp, AllChem.GetMorganFingerprintAsBitVect(m, 2, nBits=512))
+            score = DataStructs.TanimotoSimilarity(query_fp, AllChem.GetMorganFingerprintAsBitVect(m, 2, nBits=nbits))
         scores[n] = score
-    return scores
+    return list(scores)
