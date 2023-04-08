@@ -90,9 +90,10 @@ class FragGTGenerator:
         return [mol for score, mol in scored_mols]
 
     def get_initial_population(self, scoring_function: SmilesScorer) -> List[Chem.rdchem.Mol]:
-        init_size = self.population_size + self.n_mutations
 
         raw_smiles = load_smiles_from_file(self.smi_file)
+
+        init_size = (self.population_size + self.n_mutations) * 4
         if self.random_start:
             logger.info(f"taking a random subset of smiles as initial population (init_size: {init_size})")
             raw_smiles = np.random.choice(raw_smiles, init_size)
