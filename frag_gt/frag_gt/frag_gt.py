@@ -26,7 +26,7 @@ class FragGTGenerator:
                  smi_file: str = DEFAULT_STARTING_POPULATION_SMILES_PATH,
                  fragmentation_scheme: str = "brics",
                  fragstore_path: str = DEFAULT_FRAGSTORE_PATH,
-                 allow_unspecified_stereo: bool = True,
+                 allow_unspecified_stereo: bool = False,
                  scorer: str = "counts",
                  operators: Optional[List[Tuple[str, float]]] = None,
                  population_size: int = 100,
