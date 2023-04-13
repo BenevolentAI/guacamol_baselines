@@ -4,16 +4,17 @@ import argparse
 import ast
 import json
 import logging
-import numpy as np
 import os
 import random
+from typing import Optional, List
+
+import numpy as np
+
+from frag_gt.frag_gt import FragGTGenerator
 from guacamol.assess_goal_directed_generation import assess_goal_directed_generation
 from guacamol.goal_directed_generator import GoalDirectedGenerator
 from guacamol.scoring_function import ScoringFunction
 from guacamol.utils.helpers import setup_default_logger
-from typing import Optional, List
-
-from frag_gt.frag_gt import FragGTGenerator
 
 logger = logging.getLogger(__name__)
 setup_default_logger()
@@ -41,7 +42,7 @@ def main():
     parser.add_argument("--operators", type=ast.literal_eval, default=None,
                         help="List of tuples of (operator, prob of applying) where probabilities must add to 1")
     parser.add_argument("--population_size", type=int, default=500)
-    parser.add_argument("--n_mutations", type=int, default=500)
+    parser.add_argument("--candidate_population_size", type=int, default=500)
     parser.add_argument("--generations", type=int, default=300)
     parser.add_argument("--mapelites", type=str, default=None, help="keep elites in discretized space for diversity: species|mwlogp")
     # parser.add_argument("--write_all_generations", type=bool, default=False,
@@ -81,7 +82,7 @@ def main():
                                             scorer=args.scorer,
                                             operators=args.operators,
                                             population_size=args.population_size,
-                                            n_mutations=args.n_mutations,
+                                            candidate_population_size=args.candidate_population_size,
                                             generations=args.generations,
                                             map_elites=args.mapelites,
                                             random_start=args.random_start,
