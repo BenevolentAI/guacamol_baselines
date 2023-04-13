@@ -25,7 +25,7 @@ def test_fraggt_generator_e2e(tmpdir):
                                 allow_unspecified_stereo=False,
                                 operators=None,  # use default operators
                                 population_size=12,  # short run with small population
-                                n_mutations=5,
+                                candidate_population_size=5,
                                 generations=n_generations,
                                 n_jobs=1,
                                 random_start=True,
@@ -62,7 +62,7 @@ def test_fraggt_generator_custom_initial_population(tmpdir):
                                 allow_unspecified_stereo=False,
                                 operators=None,  # use default operators
                                 population_size=population_size,  # short run with small population
-                                n_mutations=5,
+                                candidate_population_size=5,
                                 generations=n_generations,
                                 n_jobs=1,
                                 random_start=True,
@@ -116,7 +116,7 @@ def test_fraggt_generator_mapelites():
                                 allow_unspecified_stereo=False,
                                 operators=None,  # use default operators
                                 population_size=12,  # short run with small population
-                                n_mutations=5,
+                                candidate_population_size=5,
                                 generations=n_generations,
                                 map_elites="species",
                                 n_jobs=1,
