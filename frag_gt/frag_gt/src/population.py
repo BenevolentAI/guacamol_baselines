@@ -107,8 +107,7 @@ class MolecularPopulationGenerator:
 
             # handle unspecified stereocenters if necessary
             if not self.allow_unspecified_stereo:
-                # check for unspecified stereocenters
-                # todo what if fragment has a terminal chiral group?
+                # todo check what happens if fragment has a terminal chiral group?
                 explicit_stereo_children = []
                 for child in children:
                     explicit_stereo_children.extend(enumerate_unspecified_stereocenters(child))
