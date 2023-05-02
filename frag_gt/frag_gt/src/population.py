@@ -4,6 +4,7 @@ from typing import List, Optional, Tuple
 
 import numpy as np
 from rdkit import Chem
+from rdkit.Chem.Descriptors import MolWt
 
 from frag_gt.src.fragmentors import fragmentor_factory
 from frag_gt.src.fragstore import fragstore_factory
@@ -62,6 +63,7 @@ class MolecularPopulationGenerator:
             if self.fixed_substructure is None:
                 raise ValueError(f"invalid smarts pattern returned None: {fixed_substructure_smarts}")
         self.patience = patience
+        self.max_molecular_weight = 2000
 
     @staticmethod
     def tournament_selection(population: List[Molecule], k: int = 5):
@@ -114,14 +116,24 @@ class MolecularPopulationGenerator:
                 children = explicit_stereo_children
 
             # filter molecules that do not maintain the fixed SMARTS
-            # the advantage of filtering here instead of having a SMARTS scoring function
-            # is that we dont waste compute on other scoring functions
+            # the advantage of filtering here instead of including a SMARTS scoring function
+            # is that we dont waste compute on scoring functions
             if self.fixed_substructure is not None:
-                contains_substructure = []
+                filtered_children = []
                 for mol in children:
                     if mol.HasSubstructMatch(self.fixed_substructure, useChirality=True):
-                        contains_substructure.append(mol)
-                children = contains_substructure
+                        filtered_children.append(mol)
+                children = filtered_children
+
+            # filter by mol weight (very large number, stops expensive calls to scoring fns)
+            if self.max_molecular_weight > 0:
+                filtered_children = []
+                for i in range(len(children)):
+                    if MolWt(children[i]) <= self.max_molecular_weight:
+                        filtered_children.append(children[i])
+                    else:
+                        logger.info(f"Dropping molecule with MW exceeding max size ({self.max_molecular_weight})...")
+                children = filtered_children
 
             # breaks infinite loop if no molecules can be generated
             if not len(children):
