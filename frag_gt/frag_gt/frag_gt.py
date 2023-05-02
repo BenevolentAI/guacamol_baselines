@@ -83,27 +83,12 @@ class FragGTGenerator:
 
         logger.info(self.__dict__)
 
-    @staticmethod
-    def top_k(mols: List[Chem.rdchem.Mol], scoring_function: SmilesScorer, k: int):
-        scores = scoring_function.score_list([Chem.MolToSmiles(m) for m in mols])
-        scored_mols = list(zip(scores, mols))
-        scored_mols = sorted(scored_mols, key=lambda x: x[0], reverse=True)[:k]
-        return [mol for score, mol in scored_mols]
-
-    def get_initial_population(self, scoring_function: SmilesScorer) -> List[Chem.rdchem.Mol]:
-
+    def get_initial_population(self, size: int) -> List[Chem.rdchem.Mol]:
         raw_smiles = load_smiles_from_file(self.smi_file)
-
-        init_size = (self.population_size + self.candidate_population_size) * 4
         if self.random_start:
-            logger.info(f"taking a random subset of smiles as initial population (init_size: {init_size})")
-            raw_smiles = np.random.choice(raw_smiles, init_size)
-
+            logger.info(f"taking a random subset of smiles as initial population (init_size: {size})")
+            raw_smiles = np.random.choice(raw_smiles, size)
         initial_population = valid_mols_from_smiles(raw_smiles, self.n_jobs)
-
-        if len(initial_population) > init_size:
-            initial_population = self.top_k(initial_population, scoring_function, init_size)
-
         return initial_population
 
     @staticmethod
@@ -165,7 +150,8 @@ class FragGTGenerator:
         if starting_population is None:
             # use the smiles file provided in the init to generate a starting population
             logger.info(f"loading initial population from smiles file: {self.smi_file}")
-            initial_population = self.get_initial_population(scoring_function)
+            initial_population_size = (self.population_size + self.candidate_population_size) * 4
+            initial_population = self.get_initial_population(size=initial_population_size)
         else:
             # user-provided smiles are used as a starting population, parse and remove invalids
             logger.info(f"using user provided initial population for generation: {starting_population}")
