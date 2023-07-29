@@ -1,13 +1,14 @@
 import random
 
 import numpy as np
+from rdkit import Chem
+
 from frag_gt.src.fragmentors import fragmentor_factory
 from frag_gt.src.fragstore import fragstore_factory
 from frag_gt.src.operators import substitute_node_mutation, add_node_mutation, delete_node_mutation, \
-    single_point_crossover, connect_mol_from_frags
+    single_point_crossover, connect_mol_from_frags, substitute_edge_mutation
 from frag_gt.src.query_builder import FragQueryBuilder
 from frag_gt.tests.utils import SAMPLE_FRAGSTORE_PATH
-from rdkit import Chem
 
 # seed random functions as operators have stochastic behaviour
 np.random.seed(1337)
@@ -84,6 +85,18 @@ def test_single_point_crossover():
     assert isinstance(Chem.MolToSmiles(new_mol2), str)
     assert Chem.MolToSmiles(MOL1) == Chem.MolToSmiles(mol1)  # original mol remains unchanged
     assert Chem.MolToSmiles(MOL2) == Chem.MolToSmiles(mol2)  # original mol remains unchanged
+
+
+def test_substitute_edge_mutation():
+    # Given
+    mol = Chem.Mol(MOL1)
+
+    # When
+    mutant = substitute_edge_mutation(mol, BRICS_FRAGMENTOR, QUERY_BUILDER)
+
+    # Then
+    assert isinstance(Chem.MolToSmiles(mutant[0]), str)
+    assert Chem.MolToSmiles(MOL1) == Chem.MolToSmiles(mol)  # original mol remains unchanged
 
 
 def test_connect_mol_from_frags_brics():

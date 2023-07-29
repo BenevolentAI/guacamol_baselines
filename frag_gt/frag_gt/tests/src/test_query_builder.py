@@ -23,6 +23,24 @@ def test_query_builder():
     assert len(frags) == len(counts)
 
 
+def test_query_builder_x_choices():
+    # given
+    fragstore_qb = FragQueryBuilder(FRAGSTORE_DB,
+                                    scorer="counts",
+                                    sort_by_score=False)
+    query_frag = Chem.MolFromSmiles("[16*]c1ccccc1")
+    gene_type = "16"
+    test_cases = {
+        'x_choice_input': [1, 0., 2, 0.5, 1000, 1.],
+        'expected': [1, 1, 2, 28, 56, 56]
+    }
+
+    # When
+    for inp, expected_n in zip(test_cases['x_choice_input'], test_cases['expected']):
+        frags, _ = fragstore_qb.query_frags(gene_type, query_frag, x_choices=inp)
+        assert len(frags) == expected_n
+
+
 def test_query_builder_invalid_gene_type():
     # Given
     fragstore_qb = FragQueryBuilder(FRAGSTORE_DB,

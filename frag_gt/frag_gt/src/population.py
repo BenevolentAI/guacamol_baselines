@@ -8,7 +8,7 @@ from rdkit.Chem.Descriptors import MolWt
 
 from frag_gt.src.fragmentors import fragmentor_factory
 from frag_gt.src.fragstore import fragstore_factory
-from frag_gt.src.operators import operator_factory
+from frag_gt.src.operators import mc_operator_factory
 from frag_gt.src.query_builder import FragQueryBuilder
 from frag_gt.src.stereo import enumerate_unspecified_stereocenters
 
@@ -37,7 +37,9 @@ class MolecularPopulationGenerator:
         # the query builder supports the mutation operators and controls how we sample the fragstore
         self.fragstore_qb = FragQueryBuilder(self._fragstore,
                                              scorer=scorer,
-                                             sort_by_score=False)
+                                             sort_by_score=False,
+                                             skip_tournament_prob=0.02,
+                                             sample_with_replacement=True)
         assert self._fragstore.scheme == self.fragmentor.name
 
         # tuple of (mutation/crossover operator, probability of applying)
@@ -87,25 +89,25 @@ class MolecularPopulationGenerator:
                 idxs = np.random.choice(len(current_pool), size=2)
                 choices = [current_pool[i] for i in idxs]
             elif self.selection_method == "tournament":
-                choice_1 = self.tournament_selection(current_pool, k=5)
-                choice_2 = self.tournament_selection(current_pool, k=5)
+                choice_1 = self.tournament_selection(current_pool, k=int(self.n_molecules * 0.02))  # todo better
+                choice_2 = self.tournament_selection(current_pool, k=int(self.n_molecules * 0.02))
                 choices = [choice_1, choice_2]
             else:
                 raise ValueError(f"Unrecognised selection method: {self.selection_method}")
 
             # select a molecular transform operator (i.e mutation, crossover)
             j = np.random.choice(len(self.mol_operator_probs), 1, p=self.mol_operator_probs)[0]
-            op = self.mol_operators[j]
+            mc_op = self.mol_operators[j]
 
             # apply operators to generate children from parent compounds
             parent_mol = choices[0].mol
-            if not op.endswith("crossover"):
+            if not mc_op.endswith("crossover"):
                 # mutation
-                children = operator_factory(op)(parent_mol, self.fragmentor, self.fragstore_qb)
+                children = mc_operator_factory(mc_op)(parent_mol, self.fragmentor, self.fragstore_qb)
             else:
                 # crossover
                 second_parent_mol = choices[1].mol
-                children = operator_factory(op)(parent_mol, second_parent_mol, self.fragmentor)
+                children = mc_operator_factory(mc_op)(parent_mol, second_parent_mol, self.fragmentor)
 
             # handle unspecified stereocenters if necessary
             if not self.allow_unspecified_stereo:

@@ -79,10 +79,11 @@ class SpeciesMapElites(MapElites):
 
 
 def map_elites_factory(mapelites_str: str, fragmentation_scheme) -> Union[SpeciesMapElites, MWLogPMapElites]:
-    if mapelites_str == "mwlogp":
-        map_elites = MWLogPMapElites(mw_step_size=25, logp_step_size=0.5)
-    elif mapelites_str == "species":
-        map_elites = SpeciesMapElites(fragmentation_scheme)
+    n_elites = 1 if not '-' in mapelites_str else int(mapelites_str.split('-')[-1])
+    if mapelites_str.startswith("mwlogp"):
+        map_elites = MWLogPMapElites(mw_step_size=25, logp_step_size=0.5, n_elites=n_elites)
+    elif mapelites_str.startswith("species"):
+        map_elites = SpeciesMapElites(fragmentation_scheme, n_elites=n_elites)
     else:
         raise ValueError(f"unknown value for mapelites argument: {mapelites_str}")
     return map_elites
