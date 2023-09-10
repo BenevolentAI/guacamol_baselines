@@ -42,7 +42,7 @@ from frag_gt.src.scorers import MolecularWeightScorer
 # lightweight generator for prototyping (else just use defaults: `generator = FragGTGenerator()`)
 generator = FragGTGenerator(generations=5,
                             population_size=20,
-                            candidate_population_size=20,
+                            n_mutations=20,
                             allow_unspecified_stereo=True,
                             smi_file='frag_gt/tests/test_data/sample.smi')
 

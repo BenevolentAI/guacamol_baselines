@@ -43,7 +43,7 @@ def main():
     parser.add_argument("--operators", type=ast.literal_eval, default=None,
                         help="List of tuples of (operator, prob of applying) where probabilities must add to 1")
     parser.add_argument("--population_size", type=int, default=500)
-    parser.add_argument("--candidate_population_size", type=int, default=500)
+    parser.add_argument("--n_mutations", type=int, default=500)
     parser.add_argument("--generations", type=int, default=300)
     parser.add_argument("--mapelites", type=str, default=None, help="keep elites in discretized space for diversity: species|mwlogp")
     parser.add_argument("--write_all_generations", action="store_true",
@@ -83,7 +83,7 @@ def main():
                                             scorer=args.scorer,
                                             operators=args.operators,
                                             population_size=args.population_size,
-                                            candidate_population_size=args.candidate_population_size,
+                                            n_mutations=args.n_mutations,
                                             generations=args.generations,
                                             map_elites=args.mapelites,
                                             random_start=args.random_start,
