@@ -24,13 +24,25 @@ class FragGTGoalDirectedGenerator(FragGTGenerator, GoalDirectedGenerator):
     """ wrapper class to keep FragGT and GuacaMol independent """
 
     def generate_optimized_molecules(self, scoring_function: ScoringFunction, number_molecules: int,
-                                     starting_population: Optional[List[str]] = None, job_name: Optional[str] = None,
-                                     ) -> List[str]:
+                                     starting_population: Optional[List[str]] = None) -> List[str]:
         return self.optimize(scoring_function=scoring_function,  # type: ignore
                              number_molecules=number_molecules,
                              starting_population=starting_population,
                              fixed_substructure_smarts=None,
-                             job_name=job_name)
+                             job_name=None)
+
+    # def generate_optimized_molecules(self, scoring_function: ScoringFunction, number_molecules: int,
+    #                                  starting_population: Optional[List[str]] = None, job_name: Optional[str] = None,
+    #                                  ) -> List[str]:
+    #     """
+    #     uncomment this version of fn to write intermediate results
+    #     also switch guacamol base library to version on branch: https://github.com/BenevolentAI/guacamol/pull/21
+    #     """
+    #     return self.optimize(scoring_function=scoring_function,  # type: ignore
+    #                          number_molecules=number_molecules,
+    #                          starting_population=starting_population,
+    #                          fixed_substructure_smarts=None,
+    #                          job_name=job_name)
 
 
 def main():
@@ -46,8 +58,8 @@ def main():
     parser.add_argument("--n_mutations", type=int, default=500)
     parser.add_argument("--generations", type=int, default=300)
     parser.add_argument("--mapelites", type=str, default=None, help="keep elites in discretized space for diversity: species|mwlogp")
-    parser.add_argument("--write_all_generations", action="store_true",
-                        help="if true, all intermediate generations will be written to the output directory")
+    # parser.add_argument("--write_all_generations", action="store_true",
+    #                     help="if true, all intermediate generations will be written to the output directory")
     parser.add_argument("--output_dir", type=str, default=None)
     parser.add_argument("--random_start", action="store_true", help="sample initial population instead of scoring and taking top k")
     parser.add_argument("--patience", type=int, default=5)
@@ -64,12 +76,12 @@ def main():
     if args.output_dir is None:
         args.output_dir = os.path.dirname(os.path.realpath(__file__))
 
-    # setup writing directory for intermediate results (requires guacamol version >0.6.0)
-    intermediate_results_dir: Optional[str] = None
-    if args.write_all_generations:
-        intermediate_results_dir = os.path.join(args.output_dir, "generations/")
-        os.makedirs(intermediate_results_dir, exist_ok=True)
-        logger.info(f"writing intermediate generation molecules to {intermediate_results_dir}")
+    # # setup writing directory for intermediate results (requires guacamol version >0.6.0)
+    # intermediate_results_dir: Optional[str] = None
+    # if args.write_all_generations:
+    #     intermediate_results_dir = os.path.join(args.output_dir, "generations/")
+    #     os.makedirs(intermediate_results_dir, exist_ok=True)
+    #     logger.info(f"writing intermediate generation molecules to {intermediate_results_dir}")
 
     # save command line args
     os.makedirs(args.output_dir, exist_ok=True)
@@ -89,7 +101,9 @@ def main():
                                             random_start=args.random_start,
                                             patience=args.patience,
                                             n_jobs=args.n_jobs,
-                                            intermediate_results_dir=intermediate_results_dir)
+                                            # intermediate_results_dir=intermediate_results_dir,
+                                            intermediate_results_dir=None,
+    )
 
     json_file_path = os.path.join(args.output_dir, "goal_directed_results.json")
     assess_goal_directed_generation(optimizer, json_output_file=json_file_path, benchmark_version=args.suite)
