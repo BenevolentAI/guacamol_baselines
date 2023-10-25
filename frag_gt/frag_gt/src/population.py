@@ -38,7 +38,7 @@ class MolecularPopulationGenerator:
         self.fragstore_qb = FragQueryBuilder(self._fragstore,
                                              scorer=scorer,
                                              sort_by_score=False,
-                                             skip_tournament_prob=0.02,
+                                             single_frag_prob=0.02,
                                              sample_with_replacement=True)
         assert self._fragstore.scheme == self.fragmentor.name
 
