@@ -25,7 +25,7 @@ class FragmentStoreCreator:
 
         # retrieve fragstore object, this knows how to read and write from fragstore
         self.frag_db = fragstore_factory(self.fragstore_type,
-                                         "no/path/needed/yet/since/this/is/a/blank/slate",
+                                         path="None",  # no path needed since this is a new fragstore
                                          scheme=self.fragmentor.name)
 
         # single processor takes 2.1 hours on chemblv24

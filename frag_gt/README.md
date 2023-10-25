@@ -24,8 +24,9 @@ pip install guacamol
 
 FragGT includes a small set of precomputed fragments for testing, for real world applications most people will want to use a larger fragment store.
 We provide precomputed fragment stores for convenience, along with code for generating custom fragment stores (see below).
-Precomputed fragstores can be downloaded from Zenodo (by default FragGT expects `data/` in the top-level of the frag-gt directory, alongside this README):
+Precomputed fragstores can be downloaded from Zenodo (by default FragGT expects `data/` in the top-level of the `frag_gt` directory, alongside this README):
 ```
+cd guacamol_baselines/frag_gt
 wget https://zenodo.org/record/7781904/files/frag_gt.zip?download=1 -O frag_gt.zip
 unzip frag_gt.zip
 rm frag_gt.zip

@@ -22,22 +22,20 @@ class FragQueryBuilder:
      - "afps": (dev) afp similarity to ref_frag
      - "random": null scorer
 
-    Also provides the prob of setting n_choices to 1,
-    effectively mimicking random selection when used in tournament selection
+    Also provides the prob of setting n_choices to 1 (via `single_frag_prob`),
+    this mimics random selection when used with tournament selection (skip the tournament)
     """
     def __init__(self, frag_store: FragStoreBase,
                  scorer: str = "random",
                  sort_by_score: bool = False,
-                 skip_tournament_prob: float = 0.,
+                 single_frag_prob: float = 0.,
                  sample_with_replacement: bool = False):
         self.frag_sampler = FragScorer(scorer=scorer, sort=sort_by_score)
         self._sort_by_score = sort_by_score
         self.db = frag_store
         self.db.load()
-        self.skip_tournament_prob = skip_tournament_prob
+        self.single_frag_prob = single_frag_prob
         self.sample_with_replacement = sample_with_replacement
-
-    # todo move check frag here? if so edit comment above and rename functions
 
     def query_frags(self,
                     gene_type: str,
@@ -84,14 +82,17 @@ class FragQueryBuilder:
             genes.extend([(s, atts["count"]) for s, atts in record["gene_frags"].items()])
 
         # determine how many genes to sample
-        if np.random.uniform(0, 1) <= self.skip_tournament_prob:  # todo maybe disassociate tournament from here
+        if np.random.uniform(0, 1) <= self.single_frag_prob:
+            # return a single frag, regardless of `x_choices` value (see docstring above)
             n_choices = 1
         elif isinstance(x_choices, float):
-            # n_choices is a proportion of available frags
+            # if float, n_choices is a proportion of available frags
             n_choices = max(int(len(genes) * x_choices), 1)
         elif x_choices == -1 or x_choices > len(genes):
+            # if -1 or n_choices is larger than available frags, return all
             n_choices = len(genes)
         else:
+            # if x_choices is int, return that number of frags from fragstore
             n_choices = x_choices
 
         # random sample of genes with replacement for tournment selection
