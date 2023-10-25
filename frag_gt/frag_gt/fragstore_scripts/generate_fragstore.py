@@ -121,7 +121,7 @@ class FragmentStoreCreator:
 
 def get_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--smiles_file", default="data/smiles_files/chembl_29_chemreps_std.smiles")
+    parser.add_argument("--smiles_file", default="data/smiles_files/chembl_33_chemreps_std.smiles")
     parser.add_argument("--output_dir", type=str, help="directory to output .pkl for 'in_memory' fragment store")
     parser.add_argument("--frag_scheme", type=str, default="brics")
     return parser

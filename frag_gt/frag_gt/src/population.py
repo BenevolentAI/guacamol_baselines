@@ -47,9 +47,10 @@ class MolecularPopulationGenerator:
             logger.debug("using default mutation and crossover operators")
             operators = [
                 ("substitute_node_mutation", 0.4),
-                ("add_node_mutation", 0.1),
-                ("delete_node_mutation", 0.1),
-                ("single_point_crossover", 0.4),
+                ("add_node_mutation", 0.05),
+                ("delete_node_mutation", 0.05),
+                ("single_point_crossover", 0.45),
+                ("substitute_edge_mutation", 0.05),
             ]
         logger.info(f"operator probabilities: {operators}")
         assert sum([tup[1] for tup in operators]) == 1.0, "operator probabilities must sum to one"
@@ -65,7 +66,7 @@ class MolecularPopulationGenerator:
             if self.fixed_substructure is None:
                 raise ValueError(f"invalid smarts pattern returned None: {fixed_substructure_smarts}")
         self.patience = patience
-        self.max_molecular_weight = 2000
+        self.max_molecular_weight = 1500
 
     @staticmethod
     def tournament_selection(population: List[Molecule], k: int = 5):
@@ -89,8 +90,8 @@ class MolecularPopulationGenerator:
                 idxs = np.random.choice(len(current_pool), size=2)
                 choices = [current_pool[i] for i in idxs]
             elif self.selection_method == "tournament":
-                choice_1 = self.tournament_selection(current_pool, k=int(self.n_molecules * 0.02))  # todo better
-                choice_2 = self.tournament_selection(current_pool, k=int(self.n_molecules * 0.02))
+                choice_1 = self.tournament_selection(current_pool, k=3)  # todo better
+                choice_2 = self.tournament_selection(current_pool, k=3)
                 choices = [choice_1, choice_2]
             else:
                 raise ValueError(f"Unrecognised selection method: {self.selection_method}")

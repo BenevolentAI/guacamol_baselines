@@ -79,7 +79,7 @@ class MyCustomScorer(SmilesScorer):
 #### Create a new fragment store
 
 The fragment store is the set of fragments used to generate molecules. 
-We provide a default fragment store based on chembl v29.
+We provide a default fragment store based on chembl v33.
 We also provide a fragstore generated from the guacamol training set which was used for guacamol experiments.
 
 If you would like to generate a new fragment store there are three stages: 
@@ -94,16 +94,16 @@ The script uses the [ChEMBL structure pipeline](https://github.com/chembl/ChEMBL
 to standardize SMILES so if required you should install using `conda`, then from the root of this directory:
 
 ```bash
-python -m frag_gt.fragstore_scripts.download_chembl_smiles -v chembl_29 -d data/smiles_files -s  # ~45 mins
+python -m frag_gt.fragstore_scripts.download_chembl_smiles -v chembl_33 -d data/smiles_files -s  # ~45 mins
 ```
-This will write to `data/smiles_files/chembl_29_chemreps_std.smiles`
+This will write to `data/smiles_files/chembl_33_chemreps_std.smiles`
 
 ##### b. Create fragstore
 
 Now we can create a new fragment store from the `.smi` file using the smiles file from (a)
 
 ```bash
-python -m frag_gt.fragstore_scripts.generate_fragstore --smiles_file data/smiles_files/chembl_29_chemreps_std.smiles --output_dir data/fragment_libraries  # ~2 hrs
+python -m frag_gt.fragstore_scripts.generate_fragstore --smiles_file data/smiles_files/chembl_33_chemreps_std.smiles --output_dir data/fragment_libraries  # ~2 hrs
 ```
 
 ##### c. Filter fragstore
@@ -112,7 +112,7 @@ We provide code for filtering fragstores based on the frequency of fragment occu
 To remove all fragments with fewer than two occurences in the fragstore:
 
 ```bash
-python -m frag_gt.fragstore_scripts.filter_fragstore --fragstore_path data/fragment_libraries/chembl_29_chemreps_std_fragstore_brics.pkl --frequency_cutoff 2
+python -m frag_gt.fragstore_scripts.filter_fragstore --fragstore_path data/fragment_libraries/chembl_33_chemreps_std_fragstore_brics.pkl --frequency_cutoff 2
 ```
 
 #### GuacaMol benchmarks
