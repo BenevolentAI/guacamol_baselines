@@ -17,8 +17,8 @@ logger = logging.getLogger(__name__)
 
 _DEFAULT_FRAGSTORE_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../data/fragment_libraries")
 _DEFAULT_POPULATION_SMILES_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../data/smiles_files")
-DEFAULT_FRAGSTORE_PATH = os.path.join(_DEFAULT_FRAGSTORE_DIR, "chembl_29_chemreps_std_fragstore_brics_filter2.pkl")
-DEFAULT_STARTING_POPULATION_SMILES_PATH = os.path.join(_DEFAULT_POPULATION_SMILES_DIR, "chembl_29_chemreps_std.smiles")
+DEFAULT_FRAGSTORE_PATH = os.path.join(_DEFAULT_FRAGSTORE_DIR, "chembl_33_chemreps_std_fragstore_brics_filter2.pkl")
+DEFAULT_STARTING_POPULATION_SMILES_PATH = os.path.join(_DEFAULT_POPULATION_SMILES_DIR, "chembl_33_chemreps_std.smiles")
 
 
 class FragGTGenerator:
@@ -185,7 +185,7 @@ class FragGTGenerator:
                                                      n_molecules=self.n_mutations,
                                                      operators=self.operators,
                                                      allow_unspecified_stereo=self.allow_unspecified_stereo,
-                                                     selection_method="tournament",
+                                                     selection_method="tournament-3",  # tournament size = 3
                                                      scorer=self.scorer,
                                                      fixed_substructure_smarts=fixed_substructure_smarts)
 

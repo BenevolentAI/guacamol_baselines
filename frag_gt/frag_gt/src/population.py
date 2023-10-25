@@ -69,9 +69,9 @@ class MolecularPopulationGenerator:
         self.max_molecular_weight = 1500
 
     @staticmethod
-    def tournament_selection(population: List[Molecule], k: int = 5):
+    def tournament_selection(population: List[Molecule], k: int = 5) -> Molecule:
         """
-        tournament selection randomly chooses five individuals from
+        tournament selection randomly chooses k individuals from
         the population and returns the fittest one
         """
         entrant_idxs = np.random.choice(len(population), size=k, replace=True)
@@ -85,13 +85,14 @@ class MolecularPopulationGenerator:
         patience = 0
         while len(new_pool) < self.n_molecules:
 
-            # select random molecule(s) from the current pool
+            # select molecule(s) from the current pool
             if self.selection_method == "random":
                 idxs = np.random.choice(len(current_pool), size=2)
                 choices = [current_pool[i] for i in idxs]
-            elif self.selection_method == "tournament":
-                choice_1 = self.tournament_selection(current_pool, k=3)  # todo better
-                choice_2 = self.tournament_selection(current_pool, k=3)
+            elif self.selection_method.startswith("tournament"):
+                tournament_size = 3 if not "-" in self.selection_method else int(self.selection_method.split("-")[-1])
+                choice_1 = self.tournament_selection(current_pool, k=tournament_size)
+                choice_2 = self.tournament_selection(current_pool, k=tournament_size)
                 choices = [choice_1, choice_2]
             else:
                 raise ValueError(f"Unrecognised selection method: {self.selection_method}")

@@ -79,7 +79,14 @@ class SpeciesMapElites(MapElites):
 
 
 def map_elites_factory(mapelites_str: str, fragmentation_scheme) -> Union[SpeciesMapElites, MWLogPMapElites]:
-    n_elites = 1 if not '-' in mapelites_str else int(mapelites_str.split('-')[-1])
+    """
+    factory for accessing different mapelites feature spaces
+
+    also allows specifying how many elites are kept per niche
+    can be interpreted as map-k-elites where k is the number of elites kept in the population
+    e.g. if `mapelites_str` == "mwlogp-2" then the 2 best molecules are kept from each mwlogp niche
+    """
+    n_elites = 1 if not "-" in mapelites_str else int(mapelites_str.split("-")[-1])
     if mapelites_str.startswith("mwlogp"):
         map_elites = MWLogPMapElites(mw_step_size=25, logp_step_size=0.5, n_elites=n_elites)
     elif mapelites_str.startswith("species"):
