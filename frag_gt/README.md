@@ -26,7 +26,7 @@ FragGT includes a small set of precomputed fragments for testing, for real world
 We provide precomputed fragment stores for convenience, along with code for generating custom fragment stores (see below).
 Precomputed fragstores can be downloaded from Zenodo (by default FragGT expects `data/` in the top-level of the frag-gt directory, alongside this README):
 ```
-wget https://zenodo.org/record/6038464/files/frag_gt.zip?download=1 -O frag_gt.zip
+wget https://zenodo.org/record/7781904/files/frag_gt.zip?download=1 -O frag_gt.zip
 unzip frag_gt.zip
 rm frag_gt.zip
 ```
