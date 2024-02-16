@@ -40,7 +40,7 @@ def standardize_smiles(raw_smiles: List[str]) -> List[str]:
 
 def get_argparser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-v", "--chembl_version", default="chembl_29", help="chembl database version (default: 29)")
+    parser.add_argument("-v", "--chembl_version", default="chembl_33", help="chembl database version (default: 33)")
     parser.add_argument("-d", "--data_root", default=".", help="root to dir containing raw chembl smiles download")
     parser.add_argument("-s", "--standardize_mols", action="store_true",
                         help="(bool) whether to use chembl pipeline to standardise mols")
@@ -70,8 +70,16 @@ def download_chembl_smiles():
     os.makedirs(args.data_root, exist_ok=True)
 
     # Download raw gzipped chemical representations file if needed
-    download_if_not_present(chembl_chemreps_local, uri=chembl_chemreps_url)
+    try:
+        download_if_not_present(chembl_chemreps_local, uri=chembl_chemreps_url)
+    except:
+        print("urllib failed, trying wget...")
+        import subprocess
+        chembl_chemreps_url = f"https://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/releases/" \
+                              f"{args.chembl_version}/{chembl_chemreps_filename}"
+        subprocess.run(f"wget {chembl_chemreps_url} -O {chembl_chemreps_local}".split(), check=True)
 
+    # requires guacamol version > 0.5.5
     # Extract smiles from file (only simple rules to avoid overhead of parsing mols)
     print("Extracting molecules and filtering with simple string-based rules")
     raw_smiles = get_raw_smiles(chembl_chemreps_local,

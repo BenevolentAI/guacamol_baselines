@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
+from typing import List, Tuple, Union, Dict
 
 from rdkit.Chem import Descriptors
-from typing import List, Tuple, Union, Dict
 
 from frag_gt.src.fragmentors import fragmentor_factory
 from frag_gt.src.gene_type_utils import get_species
@@ -13,7 +13,7 @@ class MapElites(ABC):
     Place molecules in discretized map of the feature space, where only the fittest `self.n_elites`
     molecules are kept per cell. This ensures diversity in the population.
     """
-    def __init__(self, n_elites: int = 1):
+    def __init__(self, n_elites: int):
         self.n_elites = n_elites
 
     def place_in_map(self, molecule_list: List[Molecule]) -> Tuple[List[Molecule], List[str]]:
@@ -45,7 +45,7 @@ class MapElites(ABC):
         return [m for mollist in map.values() for m in mollist], list(map.keys())
 
     @abstractmethod
-    def compute_features(self, m: Molecule):
+    def compute_features(self, m: Molecule) -> str:
         pass
 
 
@@ -79,10 +79,18 @@ class SpeciesMapElites(MapElites):
 
 
 def map_elites_factory(mapelites_str: str, fragmentation_scheme) -> Union[SpeciesMapElites, MWLogPMapElites]:
-    if mapelites_str == "mwlogp":
-        map_elites = MWLogPMapElites(mw_step_size=25, logp_step_size=0.5)
-    elif mapelites_str == "species":
-        map_elites = SpeciesMapElites(fragmentation_scheme)
+    """
+    factory for accessing different mapelites feature spaces
+
+    also allows specifying how many elites are kept per niche
+    can be interpreted as map-k-elites where k is the number of elites kept in the population
+    e.g. if `mapelites_str` == "mwlogp-2" then the 2 best molecules are kept from each mwlogp niche
+    """
+    n_elites = 1 if not "-" in mapelites_str else int(mapelites_str.split("-")[-1])
+    if mapelites_str.startswith("mwlogp"):
+        map_elites = MWLogPMapElites(mw_step_size=25, logp_step_size=0.5, n_elites=n_elites)
+    elif mapelites_str.startswith("species"):
+        map_elites = SpeciesMapElites(fragmentation_scheme, n_elites=n_elites)
     else:
         raise ValueError(f"unknown value for mapelites argument: {mapelites_str}")
     return map_elites
