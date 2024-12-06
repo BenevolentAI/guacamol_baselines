@@ -3,7 +3,7 @@ guacamol==0.5.4
 # fixing dependencies to allow guacamol baselines, moses baselines and the guacamol lib to install together
 torch==1.10.0
 joblib==0.12.5
-numpy==1.21.4
+numpy==1.22.0
 tqdm==4.26.0
 cython==0.29
 nltk==3.4.5
